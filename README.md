@@ -17,3 +17,9 @@ CREEP LAYER (v5.1, required in every episode — the plain v5 look was not creep
 - glitch:1 on the first 0.25 s of the hook and on each scare; scareFlash(t,at) (2 frames) once per part, right before the twist.
 - Creepy characters use face moods 'hollow' or 'stare' (or 'grin'); the narrator character stays 'scared'/'neutral'.
 - creep_test.html = the Fresh Mart finale with the creep layer, use it as the reference.
+
+GET CREEPIER EVERY PART (escalation rule):
+- Each new part must be creepier than the part before it. Keep everything above, then add at least ONE new scare idea not used in the previous part, e.g.: the shadow figure is closer than last time; a pale face peek() from behind a shelf/door; wrongFace() on the narrator for 2 frames; HUD shows a wrong time or a wrong step count for a moment; text on a sign changes to "BEHIND YOU"; the lights go fully black for 0.5 s with only eyes visible; something copies the character's pose in the background; a second shadow figure.
+- The creepiest moment goes in the first second (hook) AND near the end before the vote.
+- Note in the bible episode log which new scare idea each part used, so the next part picks a different one.
+- The review task (Mon & Thu) should check retention on the creepiest moments and write in LEARNINGS which scare ideas to repeat or push further.

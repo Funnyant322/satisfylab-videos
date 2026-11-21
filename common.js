@@ -130,3 +130,12 @@ const _face0=face;face=function(cx,cy,r,f){
 const DUSK=['#3a2b2b','#26303d','#3a3426','#2a3a2e','#30283d','#3b3d42'];
 // where to put always-on eyes for a shade(px,py,s) so they glow through the darkness: creep(t,{eyes:[shadeEyes(px,py,s)]})
 function shadeEyes(px,py,s){return [px,py-982*s-6*s,s*1.05,true];}
+// Pale face peeking out from behind an edge (shelf, door frame). side=-1 peeks from the left edge, 1 from the right.
+// p 0..1 how far out it leans. Draw BEFORE creep() and add [px,py,0.9,true] to creep eyes only if you want glowing eyes.
+function peek(px,py,s,p,side=1,t=0){x.save();x.translate(px-side*lerp(60,0,ease(p))*s,py);const tw=(hash(Math.floor(t*6))-.5)*0.08;x.rotate(side*(-0.35+tw));
+ x.fillStyle='#e9e4d8';x.beginPath();x.ellipse(0,0,60*s,82*s,0,0,7);x.fill();x.fillStyle='#07080c';for(const sg of[-1,1]){x.beginPath();x.ellipse(sg*22*s,-10*s,11*s,16*s,0,0,7);x.fill();}
+ x.beginPath();x.ellipse(0,38*s,9*s,22*s,0,0,7);x.fill();
+ x.fillStyle='#07080c';for(let i=0;i<4;i++){x.beginPath();x.ellipse(side*-(56+i*4)*s,(-30+i*26)*s,10*s,6*s,0,0,7);x.fill();} // fingers on the edge
+ x.restore();}
+// Wrong frame: for 2 frames at time `at`, a character's face is replaced by 'hollow'. Use as: const o2=wrongFace(t,at,YOUf); fig(...,o2)
+function wrongFace(t,at,o){return (t>=at&&t<at+0.07)?{...o,mood:'hollow'}:o;}
