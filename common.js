@@ -64,3 +64,69 @@ const RAY={hair:'grey',glasses:true,mood:'grin',apron:true,tag:true,flip:true,sh
 const YOU={cap:true,mood:'neutral',tag:true,shirt:'#26335c'};
 const DOUBLE={cap:true,mood:'grin',tag:true,shirt:'#26335c'};
 
+
+// ================= CREEP LAYER (v5.1) =================
+// Call creep(t,opts) at the END of renderFrame, after the scene + vignette, BEFORE hud()/captions().
+// opts: dark 0..1 (how black the room is, default .7), lights:[[x,y,r],...] pools of light that stay visible,
+//  grade 0..1 (cold desaturated colour, default .7), grain 0..1 (default .5), flicker 0..1 (random light dips),
+//  eyes:[[x,y,size,stay],...] eyes in the dark (blink + appear/disappear; stay=true keeps them on, use for shade() heads: shadeEyes()), glitch 0..1 (scare moments only),
+//  red 0..1 (red danger tint), shake 0..1 (handheld wobble is applied by camShake() before drawing the scene)
+const _cv=(w,h)=>{const k=document.createElement('canvas');k.width=w;k.height=h;return k;};
+const _GR=[];for(let i=0;i<6;i++){const g=_cv(270,480),gx=g.getContext('2d'),id=gx.createImageData(270,480);for(let p=0;p<id.data.length;p+=4){const v=Math.random()*255;id.data[p]=id.data[p+1]=id.data[p+2]=v;id.data[p+3]=255;}gx.putImageData(id,0,0);_GR.push(g);}
+const _MASK=_cv(W,H),_mx=_MASK.getContext('2d'),_TMP=_cv(W,H),_tx=_TMP.getContext('2d');
+const hash=n=>{const s=Math.sin(n*127.1)*43758.5453;return s-Math.floor(s);};
+function camShake(t,amt=1){const q=Math.floor(t*12);x.translate((hash(q)-.5)*10*amt+Math.sin(t*1.3)*6*amt,(hash(q+9)-.5)*10*amt+Math.cos(t*1.1)*5*amt);x.rotate(Math.sin(t*0.7)*0.006*amt);}
+function creep(t,o={}){
+ const dark=o.dark??0.7,grade=o.grade??0.7,grain=o.grain??0.5;
+ x.save();x.setTransform(1,0,0,1,0,0);
+ // 1) cold, drained colour
+ if(grade>0){x.globalCompositeOperation='saturation';x.fillStyle=`rgba(128,128,128,${0.75*grade})`;x.fillRect(0,0,W,H);
+  x.globalCompositeOperation='multiply';x.fillStyle=`rgba(${lerp(255,150,grade)|0},${lerp(255,185,grade)|0},${lerp(255,190,grade)|0},1)`;x.fillRect(0,0,W,H);}
+ if(o.red){x.globalCompositeOperation='multiply';x.fillStyle=`rgba(255,${lerp(255,90,o.red)|0},${lerp(255,90,o.red)|0},1)`;x.fillRect(0,0,W,H);}
+ x.globalCompositeOperation='source-over';
+ // 2) darkness with pools of light (+ flicker)
+ let fl=1;if(o.flicker){const q=Math.floor(t*15);if(hash(q)<0.12*o.flicker)fl=0.25+hash(q+3)*0.4;}
+ const d=clamp(dark+(1-fl)*0.5,0,0.97);
+ if(d>0){_mx.globalCompositeOperation='source-over';_mx.clearRect(0,0,W,H);_mx.fillStyle=`rgba(0,0,0,${d})`;_mx.fillRect(0,0,W,H);
+  _mx.globalCompositeOperation='destination-out';for(const [lx,ly,lr] of (o.lights||[])){const r=lr*(0.97+0.03*Math.sin(t*7+lx));const g=_mx.createRadialGradient(lx,ly,0,lx,ly,r);g.addColorStop(0,'rgba(0,0,0,0.95)');g.addColorStop(0.55,'rgba(0,0,0,0.6)');g.addColorStop(1,'rgba(0,0,0,0)');_mx.fillStyle=g;_mx.fillRect(lx-r,ly-r,2*r,2*r);}
+  x.drawImage(_MASK,0,0);}
+ // 3) eyes watching from the dark
+ for(const [i,e] of (o.eyes||[]).entries()){const [ex,ey,es=1,stay]=e;const cyc=stay?0.35:(t*0.35+i*0.37)%1;if(cyc>0.7)continue;const op=clamp(Math.min(cyc/0.08,(0.7-cyc)/0.08));
+  const blink=((t*0.9+i)%3)<0.12?0.1:1;x.globalAlpha=op;for(const s of[-1,1]){glow(ex+s*14*es,ey,26*es,'rgba(255,240,200,0.35)');x.fillStyle='#fff6dc';x.beginPath();x.ellipse(ex+s*14*es,ey,5*es,5*es*blink,0,0,7);x.fill();}x.globalAlpha=1;}
+ // 4) heavy vignette
+ x.fillStyle=rg(W/2,H*0.48,H*0.22,H*0.7,[[0,'rgba(0,0,0,0)'],[1,'rgba(0,0,0,0.75)']]);x.fillRect(0,0,W,H);
+ // 5) glitch (slice shift + colour split)
+ if(o.glitch){_tx.clearRect(0,0,W,H);_tx.drawImage(c,0,0);const q=Math.floor(t*24);
+  for(let k=0;k<Math.ceil(10*o.glitch);k++){const sy=hash(q*7+k)*H,sh=20+hash(q*3+k)*120,dx=(hash(q*5+k)-.5)*120*o.glitch;x.drawImage(_TMP,0,sy,W,sh,dx,sy,W,sh);}
+  x.globalCompositeOperation='screen';x.globalAlpha=0.35*o.glitch;x.drawImage(_TMP,8*o.glitch,0);x.globalCompositeOperation='multiply';x.fillStyle='rgb(255,120,120)';x.globalAlpha=0.25*o.glitch;x.fillRect(0,0,W,H);x.globalCompositeOperation='source-over';x.globalAlpha=1;}
+ // 6) film grain + scanlines
+ if(grain>0){x.globalCompositeOperation='overlay';x.globalAlpha=0.22*grain;x.imageSmoothingEnabled=false;x.drawImage(_GR[Math.floor(t*24)%_GR.length],0,0,W,H);x.imageSmoothingEnabled=true;
+  x.globalCompositeOperation='source-over';x.globalAlpha=0.06*grain;x.fillStyle='#000';for(let y=0;y<H;y+=6)x.fillRect(0,y,W,2);x.globalAlpha=1;}
+ x.restore();
+}
+// Tall shadow thing: pitch black, too-long limbs, white pinprick eyes, twitchy stop-motion movement.
+function shade(px,py,s,t,o={}){const tq=Math.floor(t*(o.fps||7))/(o.fps||7);const j=k=>(hash(Math.floor(t*(o.fps||7))*13+k)-.5)*(o.twitch??1);
+ const col=o.col||'#05060a',L=230*s,w=10*s,hip=[px+j(1)*20*s,py-L*2.1];const neck=[hip[0]+j(2)*30*s+(o.lean||0)*s,hip[1]-L*1.9];
+ x.save();if(o.alpha!=null)x.globalAlpha=o.alpha;
+ limb(hip,6+j(3)*10,-4,L*1.05,L*1.05,w,col);limb(hip,-6+j(4)*10,4,L*1.05,L*1.05,w,col);seg(hip,neck,w*1.6,col);
+ const sh=[neck[0],neck[1]+15*s];const reach=o.reach||0;
+ limb(sh,lerp(14,-95,reach)+j(5)*12,lerp(-4,-10,reach),L*1.25,L*1.25,w*0.8,col);limb(sh,lerp(-14,95,reach)+j(6)*12,lerp(4,10,reach),L*1.25,L*1.25,w*0.8,col);
+ const hx=neck[0]+j(7)*24*s+(o.tilt||0)*s,hy=neck[1]-62*s;x.save();x.translate(hx,hy);x.rotate((o.tilt||0)*0.01+j(8)*0.25);x.fillStyle=col;x.beginPath();x.ellipse(0,0,46*s,62*s,0,0,7);x.fill();
+ if(o.eyes!==false){for(const sg of[-1,1]){glow(sg*15*s,-6*s,22*s,'rgba(255,255,255,0.35)');x.fillStyle='#fff';x.beginPath();x.arc(sg*15*s,-6*s,4.5*s,0,7);x.fill();}}
+ if(o.smile){x.strokeStyle='#e9e4d8';x.lineWidth=3*s;x.beginPath();x.arc(0,10*s,26*s,0.15*Math.PI,0.85*Math.PI);x.stroke();for(let i=-4;i<=4;i++)seg([i*5.5*s,26*s+Math.abs(i)*-1.5*s],[i*5.5*s,33*s-Math.abs(i)*2*s],1.6*s,'#e9e4d8');}
+ x.restore();x.restore();}
+// One-frame subliminal face (use 1-3 frames only): call scareFlash(t,at) after creep()
+function scareFlash(t,at,dur=0.07){if(t<at||t>at+dur)return;x.save();x.setTransform(1,0,0,1,0,0);x.fillStyle='#000';x.fillRect(0,0,W,H);
+ x.fillStyle='#e9e4d8';x.beginPath();x.ellipse(540,900,330,440,0,0,7);x.fill();x.fillStyle='#000';for(const s of[-1,1]){x.beginPath();x.ellipse(540+s*120,820,80,120,0,0,7);x.fill();}
+ x.beginPath();x.ellipse(540,1120,150,70,0,0,7);x.fill();x.restore();}
+// extra face moods for creepy characters: 'hollow' (empty black eyes) and 'stare' (tiny pupils, wide eyes)
+const _face0=face;face=function(cx,cy,r,f){
+ if(f.mood==='hollow'){x.fillStyle='#07080c';for(const s of[-1,1]){x.beginPath();x.ellipse(cx+s*r*0.32,cy-r*0.05,r*0.16,r*0.22,0,0,7);x.fill();}x.fillStyle='rgba(120,0,0,0.5)';for(const s of[-1,1])x.fillRect(cx+s*r*0.32-r*0.02,cy+r*0.12,r*0.04,r*0.3);
+  x.beginPath();x.ellipse(cx,cy+r*0.48,r*0.08,r*0.12,0,0,7);x.fillStyle='#07080c';x.fill();return;}
+ if(f.mood==='stare'){for(const s of[-1,1]){x.fillStyle='#fff';x.beginPath();x.arc(cx+s*r*0.32,cy-r*0.05,r*0.2,0,7);x.fill();x.lineWidth=r*0.04;x.strokeStyle=INK;x.stroke();x.fillStyle=INK;x.beginPath();x.arc(cx+s*r*0.32+(f.look||0)*r*0.08,cy-r*0.05,r*0.045,0,7);x.fill();}
+  seg([cx-r*0.12,cy+r*0.45],[cx+r*0.12,cy+r*0.45],r*0.05,INK);return;}
+ _face0(cx,cy,r,f);};
+// darker, mostly-empty shelf colours for creepy sets
+const DUSK=['#3a2b2b','#26303d','#3a3426','#2a3a2e','#30283d','#3b3d42'];
+// where to put always-on eyes for a shade(px,py,s) so they glow through the darkness: creep(t,{eyes:[shadeEyes(px,py,s)]})
+function shadeEyes(px,py,s){return [px,py-982*s-6*s,s*1.05,true];}
