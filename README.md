@@ -1,4 +1,4 @@
-# 3AM Rules kit v6 (PICTURE FORMAT, 22 Nov 2026) — v5.1 code-drawn look kept below for reference — NEW FORMAT (stick figures, code-drawn, lots of movement)
+# 3AM Rules kit v7 (FLAT FORMAT, owner's choice 22 Nov 2026 16:41) — read the V7 section at the END first; v6/v5 kept for reference — NEW FORMAT (stick figures, code-drawn, lots of movement)
 Files: common.js (stick-figure engine: fig(), poses P.*, headDraw/face, helpers rr/lg/rg/glow/seg/txt),
 example_episode.html (the Fresh Mart finale: sets aisle/office/storeFront/counter, cart, card, bubble, reel-style captions, HUD, RUN pose, timeline S[...] driven by word times),
 render.js, stills.js, mix.py, music/ (m0..m6 + bed_drone), sfx/ (whoosh, stinger, stinger_low, stinger_rev, hit_low, thud, riser, static, heartbeat, footstep, cart, paper, ring, flicker, lightsout, radio, pa, freezer, cry, car).
@@ -39,3 +39,21 @@ Reference video: reference/bunker_part1_remake_FORMAT.mp4 (the owner's remake of
 - render.js / stills.js wait for pictures + fonts (window.READY_P). Always check a stills contact sheet first: no "MISSING <key>" frames.
 - Need a picture that doesn't exist? Use the closest one + overlays and write it in the bible's PICTURE WISHLIST (owner's computer-on sessions make them in Flow with Nano Banana 2.1). Never use ElevenLabs images.
 - Old v5.1 files (example_episode.html, creep_test.html) are the previous code-drawn look: do NOT use them for new parts.
+
+
+=====================================================================
+V7 FLAT FORMAT (owner's choice 22 Nov 2026 — USE THIS for every new part; overrides V6 pictures and v5)
+=====================================================================
+Reference video: reference/bunker_part2_FLAT_FORMAT.mp4 (approved by the owner). Style source: Instagram reel by @oddhourtales ("Night 1 of 7", lighthouse keeper rules).
+Everything is drawn in CODE (flat.js) — no AI pictures, no Flow, no computer needed:
+- clean flat 2D shapes, deep navy/charcoal nights, soft warm lamp/bulb glows, flashlight beams + darkness with light holes, light grain
+- hero(): round white head, dot eyes, red knit cap, olive coat, brown backpack, thin dark legs (moods calm/worry/scared/shock, arms down/hold/up/point/mouth, light = flashlight angle, walk, turn)
+- slowOne(): flat grey-green zombie, hollow eyes (eyeGlow), sit/stand, tap, lift (head up), talk, chain; no gore
+- sets: bunkerRoom (eyes/knock/radioOn/swing/hero), doorClose (chains 0..1 / open 0..1), tunnel (walk + beam), tinyRoom (slow, beamX/beamR), heroClose (big face), slowClose, handTap, radioClose (CH display + waveform), ruleNote (handwritten "Rules for the bunker", lines appear one by one; 4th item = red)
+- hud3(): red "DAY N / 6", big clock + AM/PM, place line, status chips (e.g. ✓ HATCH: LOCKED, NOISE: QUIET/LOUD)
+- captions3(): bottom (y ~1580), 1-3 words Anton, gold/red key words via window.HI, small yellow speaker tag above (RADIO · CH 3, M.'S NOTE)
+- vote3('A','B',dt): green 1 / red 2 buttons + "COMMENT 1 OR 2"; flashRed on scares, cutFlash on cuts, grainLite
+Template: example_flat_episode.html (= the approved Part 2). Copy to epN.html, keep the engine, change S timeline, CLK/PLACE/NOISE, RULES and the shots;
+ADD new set functions in the same flat style for new places (woods, hatch outside, supermarket, cabin, radio tower...) inside epN.html or flat.js.
+Length about one minute (55-70 s). ElevenLabs voice can run long: trim pauses > 0.22 s and speed up with atempo 1.05-1.1 (see bible), then remap word times.
+After mix.py check true peak; if above -1 dBFS re-encode audio with volume=-1.5dB,alimiter=limit=0.78.

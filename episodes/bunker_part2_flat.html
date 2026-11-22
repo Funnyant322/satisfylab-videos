@@ -1,0 +1,45 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+@font-face{font-family:Anton;src:url(../fonts/anton.woff2)}@font-face{font-family:Montserrat;font-weight:300;src:url(../fonts/montserrat300.woff2)}
+@font-face{font-family:Caveat;font-weight:700;src:url(../fonts/caveat.woff2)}@font-face{font-family:Inter;font-weight:800;src:url(../fonts/inter800.woff2)}
+html,body{margin:0;background:#000}canvas{display:block}</style></head>
+<body><canvas id="c" width="1080" height="1920"></canvas>
+<script src="bunker_part2_words.js"></script><script src="../common.js"></script><script src="../flat.js"></script>
+<script>
+window.HI={gold:['flashlight','whisper','tunnel','room','m','name'],red:['chained','knocked','knocking','behind','slow','free','run','door']};
+const S=[[0,3.3,'hook'],[3.3,4.6,'rewind'],[4.6,9.0,'knock'],[9.0,12.0,'grab'],[12.0,15.5,'rule2'],[15.5,18.4,'chains'],[18.4,22.3,'open'],
+ [22.3,26.1,'tunnel'],[26.1,32.7,'room'],[32.7,36.9,'turn'],[36.9,41.7,'slow'],[41.7,47.4,'tap'],[47.4,57.9,'rule4'],[57.9,62.6,'radio'],
+ [62.6,66.1,'whisper'],[66.1,70.2,'vote']];
+const CLK=t=>t<3.3?['8:21','PM']:t<9?['8:13','PM']:t<26?['8:14','PM']:t<47?['8:17','PM']:['8:21','PM'];
+const PLACE=t=>t<3.3||t>=26.1&&t<57.9?'ZOMBIE BUNKER · BEHIND THE DOOR':t>=22.3&&t<26.1?'ZOMBIE BUNKER · TUNNEL':'ZOMBIE BUNKER · MAIN ROOM';
+const NOISE=t=>(t>=32.7&&t<36.9)||(t>=41.7&&t<47.4)?['NOISE: LOUD','#ff8a3d']:['NOISE: QUIET','#7be08a'];
+const RULES=[[1,'Lock the hatch before dark.'],[2,'They follow sound.','Whisper.'],[3,'Never open the back door.','Whatever you hear.'],[4,"If he's still chained, you're safe.",'Feed him. Never set him free.',1]];
+window.renderFrame=function(t){const sh=S.find(s=>t>=s[0]&&t<s[1])||S[S.length-1];const n=sh[2],dt=t-sh[0],p=dt/(sh[1]-sh[0]);
+ x.setTransform(1,0,0,1,0,0);x.fillStyle='#000';x.fillRect(0,0,W,H);x.save();
+ const z=n==='hook'?lerp(1.25,1.12,ease(p)):1+0.04*p;x.translate(540,960);x.scale(z,z);x.translate(-540,-960);
+ if(n==='hook')tinyRoom(t,{slow:true,lift:1,eyeGlow:true,beamX:760,beamR:560,bang:30,dark:0.55,slowX:700,slowS:1.5});
+ else if(n==='rewind'){bunkerRoom(t,{knock:false});}
+ else if(n==='knock')bunkerRoom(t,{knock:true,eyes:dt>2.6,hero:[330,1600,1.25],heroO:{mood:'scared',look:1,tt:t,tremble:1}});
+ else if(n==='grab')bunkerRoom(t,{hero:[540,1640,1.3],heroO:{mood:'worry',arm:'hold',light:dt>0.8?-60:null,look:0.4},holes:dt>0.8?[[700,1050,380]]:[]});
+ else if(n==='rule2')ruleNote(t,RULES,Math.min(2.2,1+dt*0.9),{});
+ else if(n==='chains')doorClose(t,{chains:1-ease(p)});
+ else if(n==='open')doorClose(t,{open:ease(p),chains:0});
+ else if(n==='tunnel')tunnel(t,{});
+ else if(n==='room')tinyRoom(t,{beamX:dt<2?240:dt<3.9?560:880,beamR:400,dark:0.62});
+ else if(n==='turn')heroClose(t,{mood:dt<2?'scared':'shock',turn:dt>2.6?1:0,knock:dt<2.2,tremble:1,bg:'#1a1e2a'});
+ else if(n==='slow')tinyRoom(t,{slow:true,lift:0,beamX:720,beamR:520,bang:30,dark:0.6,slowX:700,slowS:1.5,tap:true});
+ else if(n==='tap')handTap(t,{});
+ else if(n==='rule4')ruleNote(t,RULES,dt<1?3:3+clamp((dt-2.8)/1.2),{sign:dt>9?'— M.':''});
+ else if(n==='radio')radioClose(t,{talk:dt>2.2});
+ else if(n==='whisper')slowClose(t,{lift:ease(dt/1.8),eyeGlow:dt>1.5,talk:dt>1.9,red:dt>1.9?0.35:0});
+ else if(n==='vote')bunkerRoom(t,{eyes:true,knock:true,dark:0.6,swing:10});
+ x.restore();
+ if(n==='hook'||n==='whisper')flashRed(dt,0.45);
+ if(n==='rewind'){x.fillStyle='rgba(0,0,0,0.35)';x.fillRect(0,0,W,H);x.save();x.font='400 70px Anton';const w=x.measureText('◀◀  EARLIER TONIGHT').width+60;rr(540-w/2,880,w,110,12,'rgba(0,0,0,0.7)');txt('◀◀  EARLIER TONIGHT',540,960,'400 70px Anton','#fff');x.restore();}
+ if(n==='vote')vote3('FREE HIM','LOCK IT',dt);
+ const [tm,ap]=CLK(t);if(!['rule2','rule4','radio'].includes(n))hud3({day:1,days:6,time:tm,ampm:ap,place:PLACE(t),chips:[['✓ HATCH: LOCKED','#7be08a'],NOISE(t)]});
+ const spk=n==='radio'&&t>60.1?'RADIO · CH 3':n==='rule4'?"M.'S NOTE":n==='whisper'&&t>64.4?'THE SLOW ONE':null;
+ if(n!=='vote')captions3(t,1580,spk);
+ grainLite(t,0.05);cutFlash(dt);
+};
+window.DONE=true;
+</script></body></html>
