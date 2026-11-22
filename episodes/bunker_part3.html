@@ -1,0 +1,68 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+@font-face{font-family:Anton;src:url(../fonts/anton.woff2)}@font-face{font-family:Montserrat;font-weight:300;src:url(../fonts/montserrat300.woff2)}
+@font-face{font-family:Caveat;font-weight:700;src:url(../fonts/caveat.woff2)}@font-face{font-family:Inter;font-weight:800;src:url(../fonts/inter800.woff2)}
+html,body{margin:0;background:#000}canvas{display:block}</style></head>
+<body><canvas id="c" width="1080" height="1920"></canvas>
+<script src="bunker_part3_words.js"></script><script src="../common.js"></script><script src="../flat.js"></script>
+<script>
+// ZOMBIE BUNKER Part 3 (ANSWER THE RADIO won). Hook: the slow ones are sitting on your hatch.
+window.HI={gold:['radio','jo','tower','uncle','notebook',"m's",'m','chained','food','button','hello','whispered'],red:['slow','hatch','scratch','four','sound','silence','circle','waiting','never','spoke','inside','moving','scraping']};
+const S=[[0,1.45,'hook'],[1.45,2.5,'hook2'],[2.5,4.2,'rewind'],[4.2,6.0,'page'],[6.0,7.65,'please'],[7.65,9.25,'chose'],[9.25,11.55,'press'],[11.55,13.65,'hello'],
+ [13.65,15.75,'static'],[15.75,19.6,'tower'],[19.6,22.95,'chained'],[22.95,26.65,'uncle'],[26.65,29.1,'rule4'],[29.1,30.9,'above'],[30.9,33.3,'scratch'],
+ [33.3,35.8,'sound'],[35.8,39.6,'night'],[39.6,42.5,'day2'],[42.5,45.4,'come'],[45.4,47.9,'tower2'],[47.9,50.0,'climb'],[50.0,53.55,'circle'],
+ [53.55,55.25,'waiting'],[55.25,57.9,'notebook'],[57.9,62.2,'vote']];
+const fm=m=>{m=((Math.round(m)%1440)+1440)%1440;let h=Math.floor(m/60),mm=m%60;const ap=h>=12?'PM':'AM';h=h%12||12;return [h+':'+String(mm).padStart(2,'0'),ap];};
+const CLK=t=>t<2.5?fm(364):t<9.25?fm(1246):t<19.6?fm(1247):t<29.1?fm(1248):t<35.8?fm(1252):t<39.6?fm(1252+ease((t-35.8)/3.6)*(1439+360-1252)):t<42.5?fm(360):t<47.9?fm(361):t<50?fm(363):fm(364);
+const DAY=t=>(t<2.5||t>=39.6)?2:1;
+const PLACE=t=>{const n=(S.find(s=>t>=s[0]&&t<s[1])||S[S.length-1])[2];return 'ZOMBIE BUNKER · '+({hook:'HATCH · OUTSIDE',hook2:'HATCH · OUTSIDE',page:'BACK DOOR',chose:'RADIO · CH 3',press:'RADIO · CH 3',hello:'RADIO · CH 3',tower:'RADIO TOWER',tower2:'RADIO TOWER',chained:'BACK DOOR',scratch:'LADDER SHAFT',above:'MAIN ROOM',sound:'HATCH · OUTSIDE',day2:'LADDER SHAFT',climb:'LADDER SHAFT',circle:'HATCH · OUTSIDE',waiting:'HATCH · OUTSIDE',vote:'HATCH · OUTSIDE'}[n]||'MAIN ROOM');};
+const NOISE=t=>(t>=11.55&&t<15.75)?['NOISE: WHISPER','#ffcf4a']:(t>=30.9&&t<39.6)?['SCRAPING: LOUD','#ff5a4a']:['NOISE: QUIET','#7be08a'];
+const HATCH=t=>t>=48.6||t<2.5?['HATCH: OPEN','#ff5a4a']:['✓ HATCH: LOCKED','#7be08a'];
+const PAGE=[['4. Three knocks',1,66],['means it\'s me.',1,66],['Open the door.',0,66],['— M.',0,60],['Please.',1,110]];
+const card=(s,y,col,bg,fs=70)=>{x.save();x.font=`400 ${fs}px Anton`;const w=x.measureText(s).width+64;rr(540-w/2,y-fs-10,w,fs+44,14,bg);txt(s,540,y,`400 ${fs}px Anton`,col);x.restore();};
+window.renderFrame=function(t){const sh=S.find(s=>t>=s[0]&&t<s[1])||S[S.length-1];const n=sh[2],dt=t-sh[0],p=clamp(dt/(sh[1]-sh[0]));
+ x.setTransform(1,0,0,1,0,0);x.fillStyle='#000';x.fillRect(0,0,W,H);x.save();
+ const z=n==='hook'?lerp(1.18,1.06,ease(p)):n==='circle'?lerp(1,1.12,ease(p)):1+0.04*p;x.translate(540,960);x.scale(z,z);x.translate(-540,-960);
+ if(n==='hook')hatchOutside(t,{eyeGlow:true,notebook:true,dark:0.4});
+ else if(n==='hook2')slowClose(t,{eyeGlow:true,lift:1,red:0.15});
+ else if(n==='rewind')bunkerRoom(t,{radioOn:true,hero:[300,1640,1.2],heroO:{mood:'worry',look:1}});
+ else if(n==='page')doorGap(t,1,{feet:true,dark:0.55});
+ else if(n==='please')tornPage(t,PAGE,5,{});
+ else if(n==='chose')bunkerRoom(t,{radioOn:true,hero:[lerp(420,700,ease(p)),1640,1.25],heroO:{mood:'worry',walk:t,look:1,arm:'point'},holes:[[880,1210,360]]});
+ else if(n==='press')handMic(t,{press:dt>0.7?1:0});
+ else if(n==='hello')heroClose(t,{mood:'worry',arm:'mouth',bg:'#2a2230',look:0.3});
+ else if(n==='static')radioClose(t,{talk:false});
+ else if(n==='tower')radioTower(t,{talk:true});
+ else if(n==='chained')doorClose(t,{chains:1,dark:0.5});
+ else if(n==='uncle')polaroidM(t,{cap:'Uncle M. & Jo',cap2:dt>1.6?'day zero: gone':null});
+ else if(n==='rule4')tornPage(t,PAGE,4,{red:dt>0.9?0.2:0});
+ else if(n==='above')heroClose(t,{mood:'shock',tremble:1,bg:'#1a1e2a',look:0});
+ else if(n==='scratch')hatchUnder(t,{shake:1,dust:true,scratch:true,dark:0.45});
+ else if(n==='sound')hatchOutside(t,{sit:false,crawl:p,scratch:true,shake:0.6,dark:0.45});
+ else if(n==='night')bunkerRoom(t,{dark:0.6,swing:3,hero:[250,1640,1.2],heroO:{mood:'worry',look:-0.4}});
+ else if(n==='day2')hatchUnder(t,{dawn:true,dark:0.35});
+ else if(n==='come')radioClose(t,{talk:true});
+ else if(n==='tower2')radioTower(t,{dawn:true,talk:true});
+ else if(n==='climb')ladderClimb(t,p,{dawn:true});
+ else if(n==='circle')peekOut(t,{lift:clamp((dt-1.4)/1.2),eyeGlow:dt>2.4});
+ else if(n==='waiting')slowClose(t,{lift:1,eyeGlow:true});
+ else if(n==='notebook')notebookHold(t,{red:dt>1.4?0.22:0});
+ else if(n==='vote')hatchOutside(t,{dawn:true,notebook:true,eyeGlow:true});
+ x.restore();
+ if(n==='static')staticLines(t,0.7);
+ if(n==='hook'||n==='hook2')flashRed(n==='hook'?dt:dt,0.4);
+ if(n==='rule4'&&dt>0.9){x.save();x.globalAlpha=clamp((dt-0.9)/0.2);seg([150,560],[930,1020],14,'#d8261c');seg([930,560],[150,1020],14,'#d8261c');card('HE NEVER WROTE THIS',1300,'#fff','rgba(170,20,20,0.88)',62);x.restore();}
+ if(n==='notebook'&&dt>1.4)flashRed(dt-1.4,0.45);
+ 
+ if(n==='hook')card("THEY'RE ON THE HATCH",620,'#fff','rgba(180,25,20,0.9)',76);
+ if(n==='hook2')card("WAITING.",620,'#fff','rgba(180,25,20,0.9)',76);
+ if(n==='rewind'){x.fillStyle='rgba(0,0,0,0.35)';x.fillRect(0,0,W,H);card('◀◀  LAST NIGHT',960,'#fff','rgba(0,0,0,0.7)');}
+ if(n==='day2'&&dt>0.2){x.save();x.globalAlpha=clamp((dt-0.2)/0.4);card('DAY 2',1000,'#fff','rgba(0,0,0,0.6)',120);x.restore();}
+ if(n==='night'){x.save();x.globalAlpha=0.9;card('ALL NIGHT',1000,'#fff','rgba(0,0,0,0.6)',64);x.restore();}
+ if(n==='vote')vote3('THE TOWER','STAY IN',dt);
+ const [tm,ap]=CLK(t);if(!['please','rule4','uncle','static','come','notebook','press'].includes(n))hud3({day:DAY(t),days:6,time:tm,ampm:ap,place:PLACE(t),chips:[HATCH(t),NOISE(t)]});
+ const spk=((t>=15.7&&t<29.0)||(t>=43.5&&t<47.9))?'RADIO · JO':(t>=11.5&&t<13.6)?'YOU (WHISPER)':(n==='please')?"THE PAGE":null;
+ if(n!=='vote')captions3(t,1580,spk);
+ grainLite(t,0.05);cutFlash(dt);
+};
+window.DONE=true;
+</script></body></html>

@@ -209,3 +209,108 @@ function tornPage(t,lines,shown,o={}){x.fillStyle=F.wood2;x.fillRect(0,0,W,H);fo
  x.fillStyle='rgba(120,80,40,0.12)';x.beginPath();x.ellipse(250,-380,90,60,0.3,0,7);x.fill();
  let y=-400;lines.forEach((L,i)=>{if(i>=shown)return;x.globalAlpha=clamp(shown-i);txt(L[0],-340,y,`700 ${L[2]||60}px Caveat`,L[1]?'#b2302a':'#2a2a2a','left');y+=L[2]?L[2]*1.5:92;x.globalAlpha=1;});
  x.restore();if(o.red){x.save();x.globalCompositeOperation='multiply';x.fillStyle=`rgba(255,120,110,${o.red})`;x.fillRect(0,0,W,H);x.restore();}vignette(0.55);}
+
+// ---------- added 23 Nov (Bunker Part 3 ANSWER THE RADIO) ----------
+// woodsSky: night (navy + stars) or dawn (grey-pink) sky with a row of pine silhouettes; base = treeline y
+function woodsSky(t,o={}){const dawn=o.dawn;x.fillStyle=lg(0,0,0,H,dawn?[[0,'#5b6478'],[0.45,'#a88f98'],[0.7,'#c9a8a0'],[1,'#6f6a68']]:[[0,'#0d1222'],[0.6,'#1c2640'],[1,'#141a2b']]);x.fillRect(0,0,W,H);
+ if(!dawn)for(let i=0;i<70;i++){x.fillStyle=`rgba(255,255,255,${0.25+0.5*hash(i+3)*(0.6+0.4*Math.sin(t*2+i))})`;x.fillRect(hash(i)*W,hash(i+9)*900,3,3);}
+ else glow(780,(o.base??1000)-40,520,'rgba(255,200,170,0.35)');
+ const base=o.base??1000;for(let k=0;k<2;k++){x.fillStyle=k?(dawn?'#3e3f47':'#0b0f1a'):(dawn?'#5a5a63':'#141b2c');for(let i=-1;i<12;i++){const tx=i*105+(k?40:0)+hash(i+k*20)*40,th=(k?260:190)+hash(i*3+k)*150;x.beginPath();x.moveTo(tx-70,base+k*30);x.lineTo(tx,base+k*30-th);x.lineTo(tx+70,base+k*30);x.fill();}}}
+// hatchOutside: the bunker hatch in the woods clearing; slow ones in a ring around it. o:{dawn, n (count), sit, crawl, lift, eyeGlow, notebook, shake}
+function hatchOutside(t,o={}){woodsSky(t,{dawn:o.dawn,base:980});x.fillStyle=o.dawn?'#4d5245':'#1b2219';x.fillRect(0,1000,W,920);
+ for(let i=0;i<60;i++){x.fillStyle=o.dawn?'#5d6553':'#232c20';const gx=hash(i)*W,gy=1010+hash(i+5)*900;x.beginPath();x.moveTo(gx-8,gy);x.lineTo(gx,gy-26-hash(i+2)*20);x.lineTo(gx+8,gy);x.fill();}
+ const hx=540,hy=1260,sh=o.shake?Math.sin(t*40)*4*o.shake:0;
+ // ring of slow ones (back half first)
+ const n=o.n??7,pts=[];for(let i=0;i<n;i++){const a=Math.PI*2*i/n+Math.PI/2+0.25;pts.push([hx+Math.cos(a)*430,hy+Math.sin(a)*170,i]);}
+ const draw=p=>{const sc=0.78+(p[1]-hy+170)/340*0.42;const sx=o.crawl?lerp(p[0],hx+(p[0]-hx)*0.55,ease(o.crawl)):p[0],sy=o.crawl?lerp(p[1],hy+(p[1]-hy)*0.55,ease(o.crawl)):p[1];
+  slowOne(sx,sy,sc,{sit:o.sit!==false,t:t+p[2],tap:o.crawl!=null,lift:o.lift??1,eyeGlow:o.eyeGlow});
+  if(o.notebook&&p[2]===Math.floor(n/2)){x.save();x.translate(sx-60*sc,sy-40*sc);x.rotate(-0.2);x.fillStyle='#6b4630';x.fillRect(-34*sc,-46*sc,68*sc,92*sc);x.fillStyle='#e9dcc0';x.fillRect(30*sc,-42*sc,6*sc,84*sc);txt('M.',0,14*sc,`700 ${40*sc}px Caveat`,'#f1e9d6');x.restore();}};
+ pts.filter(p=>p[1]<hy).sort((a,b)=>a[1]-b[1]).forEach(draw);
+ // hatch
+ x.save();x.translate(sh,0);x.fillStyle='#2a2d31';x.beginPath();x.ellipse(hx,hy+14,230,76,0,0,7);x.fill();x.fillStyle=F.steel;x.beginPath();x.ellipse(hx,hy,220,70,0,0,7);x.fill();
+ x.strokeStyle=F.steel2;x.lineWidth=8;x.beginPath();x.ellipse(hx,hy,170,52,0,0,7);x.stroke();x.fillStyle=F.rust;x.globalAlpha=0.45;x.beginPath();x.ellipse(hx-90,hy+10,60,18,0,0,7);x.fill();x.globalAlpha=1;
+ x.strokeStyle='#9aa0a6';x.lineWidth=10;x.beginPath();x.ellipse(hx,hy-26,80,24,0,0,7);x.stroke();for(let k=0;k<4;k++){const a=k*Math.PI/2+t*0.0;seg([hx,hy-26],[hx+Math.cos(a)*80,hy-26+Math.sin(a)*24],7,'#9aa0a6');}
+ x.fillStyle='#b9bec4';x.beginPath();x.ellipse(hx,hy-26,16,7,0,0,7);x.fill();x.restore();
+ if(o.scratch){x.strokeStyle='rgba(255,255,255,0.6)';x.lineWidth=5;for(let k=0;k<3;k++){const a=Math.sin(t*12+k)>0;if(a){x.beginPath();x.arc(hx,hy-40,120+k*50,Math.PI*1.15,Math.PI*1.85);x.stroke();}}}
+ pts.filter(p=>p[1]>=hy).sort((a,b)=>a[1]-b[1]).forEach(draw);
+ if(o.dawn){for(let i=0;i<5;i++){x.fillStyle=`rgba(230,220,225,${0.10+0.04*Math.sin(t+i)})`;x.beginPath();x.ellipse((i*300+t*25)%1500-200,1150+i*120,420,60,0,0,7);x.fill();}vignette(0.45);}
+ else darkness(o.dark??0.5,[[hx,hy-100,640]]);}
+// radioTower: lattice radio tower in the woods with a blinking red light and a hut with a lit window (Jo's silhouette). o:{dawn, talk}
+function radioTower(t,o={}){woodsSky(t,{dawn:o.dawn,base:1350});const tx=640,top=380,bot=1330;
+ x.strokeStyle=o.dawn?'#3b3c44':'#2a3040';x.lineWidth=10;x.beginPath();x.moveTo(tx-120,bot);x.lineTo(tx,top);x.lineTo(tx+120,bot);x.stroke();x.lineWidth=5;
+ for(let i=0;i<9;i++){const y1=top+(bot-top)*i/9,y2=top+(bot-top)*(i+1)/9,w1=120*i/9,w2=120*(i+1)/9;x.beginPath();x.moveTo(tx-w1,y1);x.lineTo(tx+w2,y2);x.moveTo(tx+w1,y1);x.lineTo(tx-w2,y2);x.moveTo(tx-w2,y2);x.lineTo(tx+w2,y2);x.stroke();}
+ seg([tx,top],[tx,top-120],6,o.dawn?'#3b3c44':'#2a3040');const bl=Math.sin(t*4)>0;x.fillStyle=bl?'#ff3b30':'#5a1a18';x.beginPath();x.arc(tx,top-126,14,0,7);x.fill();if(bl)glow(tx,top-126,90,'rgba(255,60,50,0.6)');
+ // hut
+ x.fillStyle=o.dawn?'#4a4038':'#2b241f';x.fillRect(tx-330,bot-230,260,230);x.fillStyle=o.dawn?'#3a312b':'#1f1a16';x.beginPath();x.moveTo(tx-350,bot-230);x.lineTo(tx-200,bot-320);x.lineTo(tx-50,bot-230);x.fill();
+ x.fillStyle='#ffc760';x.fillRect(tx-280,bot-180,110,90);warmLight(tx-225,bot-135,260,0.5);
+ x.fillStyle='#1a1410';x.beginPath();x.arc(tx-225,bot-132,22,0,7);x.fill();x.fillRect(tx-250,bot-110,50,24);x.beginPath();x.ellipse(tx-198,bot-140,8,18,0.4,0,7);x.fill();// Jo silhouette + ponytail
+ if(o.talk){x.strokeStyle='rgba(255,220,150,0.55)';x.lineWidth=5;for(let k=0;k<3;k++){const r=((t*120+k*70)%210)+30;x.globalAlpha=1-r/240;x.beginPath();x.arc(tx,top-126,r,Math.PI*0.9,Math.PI*2.1);x.stroke();}x.globalAlpha=1;}
+ x.fillStyle=o.dawn?'#3b3a3f':'#0a0e18';x.fillRect(0,1330,W,600);
+ if(!o.dawn)darkness(0.35,[[tx-225,bot-135,420],[tx,top-126,260]]);else vignette(0.5);}
+// handMic: close-up of your hand pressing the talk button of a handheld mic; o.press (0..1) lights the red TX light
+function handMic(t,o={}){x.fillStyle='#2a2522';x.fillRect(0,0,W,H);x.strokeStyle='#1a1a1a';x.lineWidth=10;x.beginPath();for(let i=0;i<14;i++){const yy=1500+i*30;x.ellipse(860,yy,60,18,0,0,Math.PI*2);}x.stroke();
+ x.save();x.translate(560,960);x.rotate(-0.25);x.fillStyle='#232325';x.beginPath();x.roundRect(-150,-330,300,620,70);x.fill();x.fillStyle='#38383b';for(let r=0;r<6;r++)for(let k=0;k<5;k++){x.beginPath();x.arc(-80+k*40,-220+r*40,9,0,7);x.fill();}
+ const pr=o.press??0;x.fillStyle=pr>0.5?'#ff3b30':'#5a1a18';x.beginPath();x.arc(0,60,22,0,7);x.fill();if(pr>0.5)glow(0,60,120,'rgba(255,60,50,0.6)');txt('TX',0,120,'800 34px Inter',pr>0.5?'#ff8a80':'#777');
+ x.fillStyle='#555';x.beginPath();x.roundRect(-182,-60+pr*10,40,150,12);x.fill();
+ // hand: olive sleeve + white mitten hand + thumb on the button
+ x.fillStyle=F.coat;x.beginPath();x.roundRect(-520,80,380,200,40);x.fill();x.fillStyle=F.skin;x.beginPath();x.ellipse(-150,140,120,105,0,0,7);x.fill();x.lineWidth=6;x.strokeStyle=F.ink;x.stroke();
+ x.save();x.translate(-190,10+pr*14);x.rotate(-0.3);x.fillStyle=F.skin;x.beginPath();x.roundRect(-30,-30,90,60,30);x.fill();x.stroke();x.restore();
+ x.restore();warmLight(540,700,700,0.25);vignette(0.6);}
+// polaroidM: a polaroid taped to the bunker wall: M. (beard, gas mask around his neck) and young Jo in front of the hatch; caption handwritten
+function polaroidM(t,o={}){x.fillStyle=F.wall;x.fillRect(0,0,W,H);for(let i=0;i<12;i++){x.fillStyle=i%2?'#3d3d42':'#353539';x.fillRect(0,i*170,W,168);}
+ x.save();x.translate(540,900);x.rotate(-0.05+Math.sin(t*0.8)*0.01);x.shadowColor='rgba(0,0,0,0.5)';x.shadowBlur=30;x.fillStyle='#f4f1e8';x.fillRect(-380,-470,760,900);x.shadowBlur=0;
+ x.fillStyle='#6f7f6a';x.fillRect(-330,-420,660,640);x.fillStyle='#8fa07e';x.fillRect(-330,-60,660,280);
+ for(let i=0;i<6;i++){x.fillStyle='#4e5c4a';x.beginPath();x.moveTo(-330+i*120,-60);x.lineTo(-270+i*120,-300);x.lineTo(-210+i*120,-60);x.fill();}
+ x.fillStyle=F.steel;x.beginPath();x.ellipse(120,150,140,40,0,0,7);x.fill();// hatch
+ // M.: big round head, beard, gas mask on chest, coat
+ x.fillStyle='#5a4a3a';x.beginPath();x.roundRect(-230,-60,180,280,30);x.fill();x.fillStyle=F.skin;x.beginPath();x.arc(-140,-140,70,0,7);x.fill();x.lineWidth=5;x.strokeStyle=F.ink;x.stroke();
+ x.fillStyle='#4a3626';x.beginPath();x.arc(-140,-110,58,0.1*Math.PI,0.9*Math.PI);x.fill();x.fillStyle=F.ink;x.beginPath();x.arc(-162,-150,7,0,7);x.arc(-118,-150,7,0,7);x.fill();
+ x.fillStyle='#2b2f2b';x.beginPath();x.ellipse(-140,10,48,40,0,0,7);x.fill();x.fillStyle='#9aa0a6';x.beginPath();x.arc(-160,0,13,0,7);x.arc(-120,0,13,0,7);x.fill();x.fillStyle='#1b1d1b';x.beginPath();x.arc(-140,36,16,0,7);x.fill();
+ // little Jo
+ x.fillStyle='#7a3b5a';x.beginPath();x.roundRect(10,30,110,170,24);x.fill();x.fillStyle=F.skin;x.beginPath();x.arc(65,-20,48,0,7);x.fill();x.stroke();x.fillStyle='#3a2a1a';x.beginPath();x.arc(65,-36,50,Math.PI,0);x.fill();x.beginPath();x.ellipse(120,-10,12,30,0.4,0,7);x.fill();
+ x.fillStyle=F.ink;x.beginPath();x.arc(50,-16,6,0,7);x.arc(80,-16,6,0,7);x.fill();seg([52,6],[78,6],4,F.ink);
+ txt(o.cap||'Uncle M. & Jo',0,330,'700 76px Caveat','#2a2a2a');if(o.cap2)txt(o.cap2,0,410,'700 56px Caveat','#b2302a');
+ x.fillStyle='rgba(230,220,170,0.75)';x.save();x.rotate(0.1);x.fillRect(-80,-500,160,56);x.restore();
+ x.restore();warmLight(540,300,900,0.3);vignette(0.55);}
+// hatchUnder: looking UP the ladder shaft at the hatch. o:{shake (0..1 scraping), dust, dawn (light rim), scratch}
+function hatchUnder(t,o={}){x.fillStyle='#232428';x.fillRect(0,0,W,H);
+ for(let i=0;i<9;i++){const r=1250-i*120;x.fillStyle=i%2?'#2e3035':'#34363b';x.beginPath();x.ellipse(540,560,r*0.75,r*0.52,0,0,7);x.fill();}
+ const sh=o.shake?Math.sin(t*38)*7*o.shake:0;x.save();x.translate(sh,0);
+ if(o.dawn){x.save();x.globalCompositeOperation='screen';glow(540,560,520,'rgba(255,215,180,0.35)');x.restore();x.strokeStyle='#ffe2c0';x.lineWidth=10;x.beginPath();x.ellipse(540,560,300,205,0,0,7);x.stroke();}
+ x.fillStyle=F.steel;x.beginPath();x.ellipse(540,560,290,198,0,0,7);x.fill();x.strokeStyle=F.steel2;x.lineWidth=10;x.beginPath();x.ellipse(540,560,230,156,0,0,7);x.stroke();
+ x.strokeStyle='#9aa0a6';x.lineWidth=14;x.beginPath();x.ellipse(540,560,110,76,0,0,7);x.stroke();const sp=o.shake?Math.sin(t*6)*0.15:0;for(let k=0;k<4;k++){const a=k*Math.PI/2+sp;seg([540,560],[540+Math.cos(a)*110,560+Math.sin(a)*76],10,'#9aa0a6');}
+ x.fillStyle='#c9a448';x.beginPath();x.roundRect(700,520,70,60,8);x.fill();x.restore();
+ // ladder converging up
+ for(const s of[-1,1])seg([540+s*330,1920],[540+s*120,760],22,'#6b7076');for(let i=0;i<9;i++){const k=i/9,y=1920-(1920-800)*Math.pow(k,0.8),w=lerp(330,130,Math.pow(k,0.8));seg([540-w,y],[540+w,y],14,'#5d6268');}
+ if(o.dust){for(let i=0;i<40;i++){const dy=((t*260+i*90)%1200);x.fillStyle=`rgba(210,200,180,${0.5-dy/2600})`;x.fillRect(380+hash(i)*320+Math.sin(t+i)*20,700+dy,4,4);}}
+ if(o.scratch){x.strokeStyle='rgba(255,255,255,0.7)';x.lineWidth=6;for(let k=0;k<3;k++)if(Math.sin(t*10+k*2)>0.2){x.beginPath();x.arc(540,560,330+k*55,Math.PI*1.1,Math.PI*1.9);x.stroke();}}
+ if(o.hero)hero(o.hero[0],o.hero[1],o.hero[2],o.heroO||{});
+ darkness(o.dark??0.5,[[540,600,o.dawn?800:620]]);}
+// ladderClimb: side view of the shaft; you climb the ladder toward the hatch (p 0..1); dawn light leaks around the hatch
+function ladderClimb(t,p,o={}){x.fillStyle='#2b2c31';x.fillRect(0,0,W,H);x.fillStyle='#34363b';x.fillRect(220,0,640,H);for(let i=0;i<12;i++)x.fillRect(220,i*170,640,6);
+ x.fillStyle=F.steel;x.fillRect(260,150,560,70);x.fillStyle=F.steel2;x.fillRect(260,210,560,16);
+ if(o.dawn){x.save();x.globalCompositeOperation='screen';x.fillStyle='rgba(255,220,180,0.8)';x.fillRect(250,140,8,90);x.fillRect(822,140,8,90);glow(540,150,420,'rgba(255,215,180,0.3)');x.restore();}
+ for(const lx of[380,700])seg([lx,230],[lx,H],16,'#6b7076');for(let y=300;y<H;y+=130)seg([380,y],[700,y],12,'#5d6268');
+ const hy=lerp(1900,1080,ease(p));hero(540,hy,1.25,{arm:'up',mood:'worry',walk:t*0.6,look:0,tt:t});
+ darkness(0.5,[[540,300,700],[540,hy-400,500]]);}
+// peekOut: your eye-level POV from the open hatch at dawn: the rim + your fingers in front, slow ones sitting in a ring, all facing you. o:{lift, notebook, eyeGlow, zoom}
+function peekOut(t,o={}){woodsSky(t,{dawn:true,base:900});x.fillStyle='#4d5245';x.fillRect(0,900,W,1020);
+ const ring=[[230,1130,0.62],[400,1080,0.55],[680,1080,0.55],[850,1130,0.62],[70,1420,1.0],[1010,1420,1.0],[540,1110,0.6]];
+ ring.sort((a,b)=>a[1]-b[1]).forEach((r,i)=>{slowOne(r[0],r[1],r[2]*1.25,{sit:true,t:t+i,lift:o.lift??1,eyeGlow:o.eyeGlow});
+  if(o.notebook&&r[0]===540){x.save();x.translate(r[0]-58,r[1]-40);x.rotate(-0.25);x.fillStyle='#6b4630';x.fillRect(-26,-36,52,72);txt('M.',0,12,'700 32px Caveat','#f1e9d6');x.restore();}});
+ for(let i=0;i<5;i++){x.fillStyle=`rgba(230,220,225,${0.12+0.05*Math.sin(t+i)})`;x.beginPath();x.ellipse((i*300+t*30)%1500-200,1000+i*70,420,50,0,0,7);x.fill();}
+ // hatch rim + fingers (foreground)
+ x.fillStyle='#2a2d31';x.beginPath();x.ellipse(540,1900,820,250,0,Math.PI,0);x.lineTo(1400,1920);x.lineTo(-400,1920);x.fill();x.fillStyle=F.steel;x.beginPath();x.ellipse(540,1890,760,220,0,Math.PI,0);x.fill();
+ x.fillStyle='#141619';x.beginPath();x.ellipse(540,1930,640,170,0,Math.PI,0);x.fill();
+ for(const fx of[250,330,750,830]){x.fillStyle=F.skin;x.beginPath();x.roundRect(fx-30,1640,60,110,28);x.fill();x.lineWidth=5;x.strokeStyle=F.ink;x.stroke();}
+ vignette(0.55);}
+// notebookHold: close-up of a grey slow-one hand holding M.'s brown notebook (open:0..1 flips the cover to show handwriting)
+function notebookHold(t,o={}){x.fillStyle=lg(0,0,0,H,[[0,'#6f6a70'],[1,'#3f4245']]);x.fillRect(0,0,W,H);for(let i=0;i<5;i++){x.fillStyle=`rgba(230,220,225,${0.1})`;x.beginPath();x.ellipse((i*280+t*20)%1400-150,600+i*220,420,60,0,0,7);x.fill();}
+ x.save();x.translate(540,900+Math.sin(t*1.3)*8);x.rotate(-0.12);
+ x.fillStyle='#6b4630';x.beginPath();x.roundRect(-260,-340,520,680,24);x.fill();x.fillStyle='#e9dcc0';x.fillRect(250,-320,16,640);x.strokeStyle='#4a3020';x.lineWidth=6;x.strokeRect(-230,-310,460,620);
+ txt('M.',0,40,'700 240px Caveat','#f1e9d6');txt('RULES',0,170,'800 44px Inter','rgba(241,233,214,0.7)');
+ x.fillStyle=F.slow2;x.beginPath();x.roundRect(-760,120,560,180,70);x.fill();x.fillStyle=F.slow;x.beginPath();x.ellipse(-230,200,130,110,0,0,7);x.fill();
+ for(let i=0;i<4;i++){x.save();x.translate(-170,110+i*48);x.rotate(-0.15+i*0.05);x.fillStyle=F.slow;x.beginPath();x.roundRect(0,-20,200-i*20,40,20);x.fill();x.strokeStyle='#3d463a';x.lineWidth=4;x.stroke();x.restore();}
+ x.restore();vignette(0.6);if(o.red){x.save();x.globalCompositeOperation='multiply';x.fillStyle=`rgba(255,120,110,${o.red})`;x.fillRect(0,0,W,H);x.restore();}}
+// staticLines: TV/radio static overlay (a 0..1)
+function staticLines(t,a=0.5){x.save();for(let i=0;i<60;i++){const y=hash(i+Math.floor(t*30)*7)*H;x.fillStyle=`rgba(255,255,255,${a*hash(i*5+Math.floor(t*30))*0.5})`;x.fillRect(0,y,W,2+hash(i)*6);}x.restore();grainLite(t,a*0.4);}
