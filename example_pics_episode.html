@@ -1,0 +1,45 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+@font-face{font-family:Anton;src:url(fonts/anton.woff2)}@font-face{font-family:Montserrat;font-weight:300;src:url(fonts/montserrat300.woff2)}
+@font-face{font-family:"Permanent Marker";src:url(fonts/marker.woff2)}@font-face{font-family:Inter;font-weight:800;src:url(fonts/inter800.woff2)}
+html,body{margin:0;background:#000}canvas{display:block}</style></head>
+<body><canvas id="c" width="1080" height="1920"></canvas>
+<!-- v6 PICTURE FORMAT example. Copy to epN.html, change PICS, WORDS (words.js), HI, S and the shot code. -->
+<script>
+window.PICS={door:'pics/bunker/back_door_close.jpg',room:'pics/bunker/bunker_room.jpg',city:'pics/bunker_ep1/city_empty.jpg',slow:'pics/bunker_ep1/city_slow_ones.jpg',
+ face:'pics/bunker_ep1/zombie_face.jpg',cot:'pics/bunker/kid_pushes_cot.jpg',fingers:'pics/bunker/fingers_under_door.jpg',shh:'pics/bunker/kid_back_to_door_shh.jpg'};
+window.HI={green:['whisper','hatch','flashlight','pizza','bunker','block'],red:['knock','door','inside','back','open']};
+</script>
+<script src="words.js"></script>
+<script src="common.js"></script>
+<script src="pics.js"></script>
+<script>
+// timeline: [start,end,'shot',{options}]
+const S=[[0,2.2,'hook'],[2.2,4.2,'rewind'],[4.2,7.5,'city'],[7.5,10.5,'slow'],[10.5,13.5,'room'],[13.5,16.5,'rule'],[16.5,19.5,'cot'],[19.5,21,'fingers'],[21,23.5,'shh'],[23.5,27,'vote']];
+const CLOCK=t=>t<2.2?['8:13','PM']:t<10.5?['12:00','PM']:t<16.5?['3:05','PM']:['8:13','PM'];
+const NOISE=t=>t<2.2?8+Math.sin(t*20):t<16.5?1:t<19.5?5+Math.sin(t*9):t<23.5?9:2;
+window.renderFrame=function(t){const {n,dt,dur,p}=shotAt(S,t);x.setTransform(1,0,0,1,0,0);x.fillStyle='#000';x.fillRect(0,0,W,H);
+ x.save();camShake(t,n==='hook'||n==='fingers'?1.4:0.4);let cr={dark:.3,grade:.2,grain:.55};
+ if(n==='hook'){pic('door',p,{z0:1.1,z1:1.22,y0:40,y1:60});windowEyes(540,500,1.3,t);cr={dark:.45,lights:[[540,560,500]],grain:.7,glitch:dt<0.2?1:0};}
+ else if(n==='rewind'){pic('city',p,{z0:1.05,z1:1.12});}
+ else if(n==='city'){pic('city',p,{z0:1.1,z1:1.0,x1:-30});}
+ else if(n==='slow'){pic('slow',p,{z0:1,z1:1.15,y1:-60});cr.red=.15;}
+ else if(n==='room'){pic('room',p,{z0:1,z1:1.1});kid(lerp(380,520,ease(p)),1690,0.62,P.walk(t),{mood:'scared',look:0.5});cr={dark:.4,lights:[[540,350,520],[460,1300,500]],grain:.55};}
+ else if(n==='rule'){pic('room',1,{z0:1.1,z1:1.1});}
+ else if(n==='cot'){pic('cot',p,{z0:1.0,z1:1.12,x1:20});}
+ else if(n==='fingers'){pic('fingers',p,{z0:1.15,z1:1.3,y0:-80,y1:-120});cr={dark:.45,lights:[[560,1200,500]],grain:.8,glitch:dt<0.15?.8:0};}
+ else if(n==='shh'){pic('shh',p,{z0:1.05,z1:1.15});cr={dark:.35,grain:.6,flicker:1};}
+ else if(n==='vote'){pic('door',p,{z0:1.15,z1:1.2,y0:50,y1:60});windowEyes(540,505,1.3,t);cr={dark:.45,lights:[[540,560,450]],grain:.6};}
+ x.restore();
+ creep(t,cr);
+ // overlays after the creep layer
+ if(n==='hook'){redFlash(dt,0.6);topLabel("IT'S INSIDE.",dt);}
+ if(n==='rewind')rewindCard('8 HOURS EARLIER',dt);
+ if(n==='rule')noteCard(3,['NEVER OPEN','THE BACK DOOR.'],dt);
+ if(n==='fingers')redFlash(dt,0.4);if(n==='shh')topLabel('DON\'T MAKE A SOUND.',dt,'#fff');
+ if(n==='vote')vote2('OPEN IT','BLOCK IT',dt);
+ const [tm,ap]=CLOCK(t);hud2({day:1,days:6,time:tm,ampm:ap,story:'ZOMBIE BUNKER',ep:1,noise:NOISE(t)});
+ if(n!=='rule')captions2(t);
+ if(dt<0.08){x.fillStyle=`rgba(255,255,255,${0.18*(1-dt/0.08)})`;x.fillRect(0,0,W,H);}
+};
+window.DONE=true;
+</script></body></html>
