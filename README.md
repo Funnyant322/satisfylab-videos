@@ -57,3 +57,5 @@ Template: example_flat_episode.html (= the approved Part 2). Copy to epN.html, k
 ADD new set functions in the same flat style for new places (woods, hatch outside, supermarket, cabin, radio tower...) inside epN.html or flat.js.
 Length about one minute (55-70 s). ElevenLabs voice can run long: trim pauses > 0.22 s and speed up with atempo 1.05-1.1 (see bible), then remap word times.
 After mix.py check true peak; if above -1 dBFS re-encode audio with volume=-1.5dB,alimiter=limit=0.78.
+
+New flat.js functions (22 Nov, Bunker Part 2 BLOCK IT): barricade(t,stage 0..3,{shake}) over bunkerRoom's back door; cansRoll(t) noisy cans close-up; doorGap(t,p,{feet}) gap under the door with a page sliding in/out + feet shadows; tornPage(t,lines,shown,{red}) M.'s torn page with handwritten lines.

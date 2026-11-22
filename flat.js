@@ -179,3 +179,33 @@ function vote3(a,b,dt,y=1180){const p=ease(dt/0.35);x.save();x.translate(540,y);
 function flashRed(dt,len=0.4){if(dt<len){x.fillStyle=`rgba(200,20,20,${0.45*(1-dt/len)})`;x.fillRect(0,0,W,H);}}
 function cutFlash(dt){if(dt<0.07){x.fillStyle=`rgba(255,255,255,${0.15*(1-dt/0.07)})`;x.fillRect(0,0,W,H);}}
 function grainLite(t,a=0.06){x.save();x.globalAlpha=a;for(let i=0;i<900;i++){x.fillStyle=hash(i+Math.floor(t*24)*13)>0.5?'#fff':'#000';x.fillRect(hash(i*3+Math.floor(t*24))*W,hash(i*7+Math.floor(t*24))*H,2,2);}x.restore();}
+
+// ---------- added 22 Nov (Bunker Part 2 BLOCK IT) ----------
+// barricade(stage 0..3): drawn in front of the bunkerRoom back door (door at x540, bottom y1400, scale .9). 1 = cot on its end, 2 = + shelf, 3 = + crates. shake = hit from behind
+function barricade(t,stage,o={}){const sh=o.shake?Math.max(0,Math.sin(t*22))*o.shake*10:0;x.save();x.translate(sh,0);
+ if(stage>0){const a=clamp(stage);x.globalAlpha=a;x.save();x.translate(400,1400);x.rotate(-0.08);x.fillStyle='#4b5560';x.fillRect(-30,-560,60,560);x.fillStyle='#6b7780';x.beginPath();x.roundRect(10,-540,70,520,14);x.fill();for(let i=0;i<6;i++)seg([0,-500+i*90],[90,-500+i*90],5,'#3a4048');x.restore();x.globalAlpha=1;}
+ if(stage>1){const a=clamp(stage-1);x.globalAlpha=a;x.fillStyle=F.wood2;x.fillRect(560,1000,190,400);x.fillStyle=F.wood;for(let k=0;k<4;k++)x.fillRect(560,1010+k*100,190,14);x.globalAlpha=1;}
+ if(stage>2){const a=clamp(stage-2);x.globalAlpha=a;for(const [bx,by,bw,bh] of [[430,1250,180,150],[600,1250,170,150],[500,1110,190,140],[470,980,150,130]]){x.fillStyle=F.wood;x.fillRect(bx,by,bw,bh);x.strokeStyle=F.wood2;x.lineWidth=8;x.strokeRect(bx+6,by+6,bw-12,bh-12);seg([bx+6,by+6],[bx+bw-6,by+bh-6],6,F.wood2);}x.globalAlpha=1;}
+ x.restore();}
+// cansRoll: close-up of tin cans rolling across the floor (noisy moment)
+function cansRoll(t,o={}){x.fillStyle=F.floor;x.fillRect(0,0,W,H);for(let i=0;i<14;i++){x.fillStyle=i%2?'#2a2522':'#26211e';x.fillRect(0,i*140,W,140);}
+ const cols=['#b04a3a','#c9a448','#7f9a5a','#6f8aa8'];for(let i=0;i<4;i++){const px=((t*(200+i*130)+i*370)%1500)-200,py=900+i*180,r=70;x.save();x.translate(px,py);x.rotate(t*(3+i));x.fillStyle=cols[i];x.beginPath();x.roundRect(-r,-r*0.8,r*2,r*1.6,14);x.fill();x.fillStyle='#d9d9d9';x.fillRect(-r,-r*0.8,14,r*1.6);x.fillRect(r-14,-r*0.8,14,r*1.6);x.fillStyle='rgba(255,255,255,0.35)';x.fillRect(-r+20,-r*0.5,r*2-40,20);x.restore();
+  if(Math.sin(t*9+i)>0.85){x.strokeStyle='rgba(255,255,255,0.5)';x.lineWidth=5;for(let k=0;k<2;k++){x.beginPath();x.arc(px,py,90+k*35,Math.PI*1.2,Math.PI*1.8);x.stroke();}}}
+ warmLight(540,300,900,0.35);vignette(0.6);}
+// doorGap: low close-up of the gap under the back door; a page slides in (p 0..1) or back out (dir -1); feet shadows move in the light from behind
+function doorGap(t,p,o={}){x.fillStyle=F.steel;x.fillRect(0,0,W,1180);x.fillStyle=F.steel2;x.fillRect(0,1120,W,60);x.fillStyle='#8b9096';for(let i=0;i<6;i++){x.beginPath();x.arc(90+i*180,1080,9,0,7);x.fill();}
+ x.fillStyle='#07080b';x.fillRect(0,1180,W,46);// gap
+ x.save();x.globalCompositeOperation='screen';x.fillStyle=`rgba(255,220,160,${0.25+0.1*Math.sin(t*3)})`;x.fillRect(0,1186,W,34);x.restore();
+ if(o.feet){for(const k of[-1,1]){const fx=540+k*120+Math.sin(t*1.5)*40;x.fillStyle='#07080b';x.fillRect(fx-50,1186,100,34);}}
+ x.fillStyle=F.floor;x.fillRect(0,1226,W,700);for(let i=0;i<5;i++){x.fillStyle='#231f1c';x.fillRect(0,1300+i*130,W,6);}
+ const ex=lerp(-360,140,ease(p));if(p>0){x.save();x.beginPath();x.rect(0,1190,W,800);x.clip();x.translate(540,1226+ex);x.rotate(0.06);x.fillStyle='#efe6d0';x.beginPath();x.moveTo(-230,-20);x.lineTo(230,-20);x.lineTo(240,300);x.lineTo(150,320);x.lineTo(60,295);x.lineTo(-40,325);x.lineTo(-150,300);x.lineTo(-240,320);x.closePath();x.fill();
+  for(let i=0;i<5;i++)seg([-190,30+i*50],[lerp(60,190,hash(i)),30+i*50],7,'rgba(40,40,40,0.55)');x.restore();}
+ beam(1080,1900,-40,1500,0.3,0.4);darkness(o.dark??0.5,[[540,1300,560]]);}
+// tornPage: big torn notebook page in M.'s handwriting. lines: [['text',red?],...]; shown = lines visible (fractional ok)
+function tornPage(t,lines,shown,o={}){x.fillStyle=F.wood2;x.fillRect(0,0,W,H);for(let i=0;i<20;i++){x.fillStyle=i%2?'#4a3322':'#3f2b1d';x.fillRect(0,i*100,W,100);}
+ x.save();x.translate(540,900);x.rotate(0.03);x.shadowColor='rgba(0,0,0,0.5)';x.shadowBlur=30;x.fillStyle='#efe6d0';
+ x.beginPath();x.moveTo(-400,-520);x.lineTo(400,-520);x.lineTo(410,420);x.lineTo(300,460);x.lineTo(180,420);x.lineTo(40,470);x.lineTo(-90,425);x.lineTo(-220,465);x.lineTo(-410,430);x.closePath();x.fill();x.shadowBlur=0;
+ for(let y=-420;y<420;y+=78)seg([-370,y],[370,y],2,'rgba(90,110,150,0.22)');
+ x.fillStyle='rgba(120,80,40,0.12)';x.beginPath();x.ellipse(250,-380,90,60,0.3,0,7);x.fill();
+ let y=-400;lines.forEach((L,i)=>{if(i>=shown)return;x.globalAlpha=clamp(shown-i);txt(L[0],-340,y,`700 ${L[2]||60}px Caveat`,L[1]?'#b2302a':'#2a2a2a','left');y+=L[2]?L[2]*1.5:92;x.globalAlpha=1;});
+ x.restore();if(o.red){x.save();x.globalCompositeOperation='multiply';x.fillStyle=`rgba(255,120,110,${o.red})`;x.fillRect(0,0,W,H);x.restore();}vignette(0.55);}
