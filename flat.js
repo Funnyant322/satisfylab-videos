@@ -314,3 +314,28 @@ function notebookHold(t,o={}){x.fillStyle=lg(0,0,0,H,[[0,'#6f6a70'],[1,'#3f4245'
  x.restore();vignette(0.6);if(o.red){x.save();x.globalCompositeOperation='multiply';x.fillStyle=`rgba(255,120,110,${o.red})`;x.fillRect(0,0,W,H);x.restore();}}
 // staticLines: TV/radio static overlay (a 0..1)
 function staticLines(t,a=0.5){x.save();for(let i=0;i<60;i++){const y=hash(i+Math.floor(t*30)*7)*H;x.fillStyle=`rgba(255,255,255,${a*hash(i*5+Math.floor(t*30))*0.5})`;x.fillRect(0,y,W,2+hash(i)*6);}x.restore();grainLite(t,a*0.4);}
+
+// ---------- added 23 Nov (Bunker Part 4 STAY INSIDE) ----------
+// crawlspace: top-down bunker floorboards; one board pried up (pry 0..1) revealing a dark crawlspace with a page lit by a flashlight beam.
+// o: {pry, page:true, hand:true, beamA (deg), red, dark, shake}
+function crawlspace(t,o={}){const pry=o.pry??1,sh=o.shake?Math.sin(t*40)*6*o.shake:0;x.save();x.translate(sh,0);
+ x.fillStyle='#2b2420';x.fillRect(-20,0,W+40,H);
+ for(let i=0;i<7;i++){const bx=i*160-20;x.fillStyle=i%2?'#5a3f2a':'#523926';x.fillRect(bx,0,156,H);x.fillStyle='rgba(0,0,0,0.25)';x.fillRect(bx+154,0,6,H);
+  for(let k=0;k<4;k++){x.fillStyle='rgba(40,25,15,0.35)';x.beginPath();x.ellipse(bx+40+hash(i*9+k)*80,200+k*460+hash(i+k)*120,10,22,0,0,7);x.fill();}
+  for(let k=0;k<3;k++){x.fillStyle='#8a8f96';for(const nx of[bx+24,bx+130]){x.beginPath();x.arc(nx,320+k*620,7,0,7);x.fill();}}}
+ // the hole (under two boards)
+ const hx=300,hw=316,hy=520,hh=900;x.fillStyle='#07080b';x.fillRect(hx,hy,hw,hh);
+ x.save();x.beginPath();x.rect(hx,hy,hw,hh);x.clip();x.fillStyle='#14100d';for(let i=0;i<10;i++)x.fillRect(hx-40+i*40,hy+60+hash(i)*hh*0.8,30,7);
+ x.strokeStyle='rgba(120,110,100,0.25)';x.lineWidth=3;for(let i=0;i<4;i++){x.beginPath();x.moveTo(hx,hy+180+i*200);x.lineTo(hx+hw,hy+150+i*210);x.stroke();}
+ if(o.page!==false){const fl=0.5+0.5*Math.sin(t*2.2);x.save();x.translate(hx+hw/2,hy+hh*0.52);x.rotate(-0.1+Math.sin(t*0.8)*0.01);x.shadowColor='rgba(255,230,180,0.5)';x.shadowBlur=30+10*fl;x.fillStyle='#ece2c8';
+  x.beginPath();x.moveTo(-120,-170);x.lineTo(120,-170);x.lineTo(126,160);x.lineTo(60,176);x.lineTo(0,158);x.lineTo(-70,178);x.lineTo(-126,160);x.closePath();x.fill();x.shadowBlur=0;
+  for(let k=0;k<7;k++)seg([-96,-130+k*36],[lerp(20,96,hash(k+3)),-130+k*36],5,k===1||k===2?'rgba(178,48,42,0.8)':'rgba(40,40,40,0.6)');x.restore();}
+ x.restore();
+ // the two lifted boards lean against the left edge (rotate up on the left hinge)
+ for(let b=0;b<2;b++){x.save();x.translate(hx+b*158,hy);const a=pry*1.25;const sx=Math.cos(a);x.transform(sx,0,0,1,0,0);x.translate(-b*158*(1-sx)/sx,0);x.fillStyle=b?'#6a4d35':'#5f4530';x.fillRect(0,0,156,hh);x.fillStyle='rgba(0,0,0,0.3)';x.fillRect(150,0,6,hh);x.restore();}
+ if(pry>0.05){x.fillStyle='rgba(0,0,0,0.35)';x.fillRect(hx-40*pry,hy,40*pry,hh);}
+ if(o.hand){const hy2=hy+hh*0.5;x.save();x.translate(hx-250+60*pry,hy2+140);x.rotate(-0.5);x.fillStyle=F.coat;x.fillRect(-300,-46,330,92);x.fillStyle=F.skin;x.beginPath();x.ellipse(40,0,56,46,0,0,7);x.fill();x.restore();
+  seg([hx-150,hy2+60],[hx+30,hy2-40-60*pry],14,'#9aa0a6');}
+ x.restore();
+ beam(980,1880,o.beamA??-30,1500,0.24,0.55);darkness(o.dark??0.55,[[hx+hw/2,hy+hh*0.52,560]]);
+ if(o.red){x.save();x.globalCompositeOperation='multiply';x.fillStyle=`rgba(255,110,100,${o.red})`;x.fillRect(0,0,W,H);x.restore();}vignette(0.5);}

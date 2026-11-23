@@ -1,0 +1,59 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+@font-face{font-family:Anton;src:url(../fonts/anton.woff2)}@font-face{font-family:Montserrat;font-weight:300;src:url(../fonts/montserrat300.woff2)}
+@font-face{font-family:Caveat;font-weight:700;src:url(../fonts/caveat.woff2)}@font-face{font-family:Inter;font-weight:800;src:url(../fonts/inter800.woff2)}
+html,body{margin:0;background:#000}canvas{display:block}</style></head>
+<body><canvas id="c" width="1080" height="1920"></canvas>
+<script src="bunker_part4_words.js"></script><script src="../common.js"></script><script src="../flat.js"></script>
+<script>
+// ZOMBIE BUNKER Part 4 (STAY INSIDE won: 2 comments "stay"). VIEW JAIL PLAN: 40 s, stranger-proof hook. Hook: a note under the floor in YOUR handwriting.
+window.HI={gold:['radio','jo','page','board','crawlspace','name','note','floor','floor."'],red:['your','handwriting.','knocks.','knock.','hatch.','never','dark.','trust','jo.','behind','door.','listening?"','static.']};
+const S=[[0,1.3,'hook'],[1.3,2.2,'hook2'],[2.2,4.0,'hook3'],[4.0,6.5,'chose'],[6.5,8.4,'day2'],[8.4,10.2,'knock'],[10.2,11.3,'hatch'],[11.3,13.2,'never'],
+ [13.2,14.6,'radio'],[14.6,18.6,'jo'],[18.6,20.0,'pry'],[20.0,21.8,'crawl'],[21.8,23.1,'reveal'],[23.1,29.4,'page'],[29.4,30.5,'static'],[30.5,33.9,'door'],[33.9,35.5,'why'],[35.5,40.7,'vote']];
+const fm=m=>{m=((Math.round(m)%1440)+1440)%1440;let h=Math.floor(m/60),mm=m%60;const ap=h>=12?'PM':'AM';h=h%12||12;return [h+':'+String(mm).padStart(2,'0'),ap];};
+const CLK=t=>t<4?fm(965):t<6.5?fm(958):t<13.2?fm(960):t<18.6?fm(962):t<29.4?fm(964):fm(965);
+const PLACE=t=>{const n=(S.find(s=>t>=s[0]&&t<s[1])||S[S.length-1])[2];return 'ZOMBIE BUNKER · '+({hook:'UNDER THE FLOOR',hook3:'MAIN ROOM',day2:'HATCH · OUTSIDE',knock:'LADDER SHAFT',hatch:'LADDER SHAFT',never:'HATCH · OUTSIDE',jo:'RADIO TOWER',pry:'UNDER THE FLOOR',crawl:'UNDER THE FLOOR',reveal:'UNDER THE FLOOR',door:'BACK DOOR',why:'BACK DOOR',vote:'UNDER THE FLOOR'}[n]||'MAIN ROOM');};
+const CHIPS=t=>{const c=[['✓ HATCH: LOCKED','#7be08a']];if(t>=8.4&&t<13.2)c.push(['KNOCKS: 3','#ff5a4a']);else if(t>=14.6)c.push(['DARK IN: 2 HRS','#ffcf4a']);else c.push(['NOISE: QUIET','#7be08a']);return c;};
+const PAGE=[['Day two.',0,66],["Don't trust Jo.",1,72],["She isn't on",1,72],['the radio.',1,72],['— YOU',0,64]];
+const pageShown=t=>t<25.7?0.6:t<26.6?1:t<27.8?2:t<28.8?3:t<29.0?4:5;
+const card=(s,y,col,bg,fs=70)=>{x.save();x.font=`400 ${fs}px Anton`;const w=x.measureText(s).width+64;rr(540-w/2,y-fs-10,w,fs+44,14,bg);txt(s,540,y,`400 ${fs}px Anton`,col);x.restore();};
+const knockAt=[8.55,9.25,9.6];
+window.renderFrame=function(t){const sh=S.find(s=>t>=s[0]&&t<s[1])||S[S.length-1];const n=sh[2],dt=t-sh[0],p=clamp(dt/(sh[1]-sh[0]));
+ x.setTransform(1,0,0,1,0,0);x.fillStyle='#000';x.fillRect(0,0,W,H);x.save();
+ const z=n==='hook'?lerp(1.45,1.25,ease(p)):n==='reveal'?lerp(1,1.35,ease(p)):n==='door'?lerp(1,1.1,ease(p)):1+0.04*p;const zc=(n==='hook'||n==='reveal')?[470,990]:[540,960];x.translate(540,960);x.scale(z,z);x.translate(-zc[0],-zc[1]);
+ const kn=knockAt.some(k=>t>=k&&t<k+0.18)?1:0;
+ if(n==='hook')crawlspace(t,{pry:1,beamA:-28+Math.sin(t*3)*8,red:0.12,dark:0.5});
+ else if(n==='hook2')tornPage(t,PAGE,3,{red:0.18});
+ else if(n==='hook3')heroClose(t,{mood:'shock',tremble:1,bg:'#1a1e2a',look:0});
+ else if(n==='chose')bunkerRoom(t,{radioOn:false,hero:[lerp(360,640,ease(p)),1640,1.25],heroO:{mood:'worry',walk:t,look:-1}});
+ else if(n==='day2')hatchOutside(t,{dawn:true,dark:0.3});
+ else if(n==='knock'||n==='hatch')hatchUnder(t,{shake:kn?1.4:(n==='hatch'?0.3:0),dust:true,dark:0.45});
+ else if(n==='never')slowClose(t,{lift:1,eyeGlow:true});
+ else if(n==='radio')radioClose(t,{talk:true});
+ else if(n==='jo')radioTower(t,{dawn:true,talk:true});
+ else if(n==='pry')crawlspace(t,{pry:ease(p),hand:true,page:true,dark:0.55});
+ else if(n==='crawl')crawlspace(t,{pry:1,beamA:-40+p*24,dark:0.5});
+ else if(n==='reveal')crawlspace(t,{pry:1,beamA:-28,dark:0.45});
+ else if(n==='page')tornPage(t,PAGE,pageShown(t),{red:t>=26.6&&t<27.4?0.18:0});
+ else if(n==='static')radioClose(t,{talk:false});
+ else if(n==='door')doorClose(t,{chains:1,dark:0.5});
+ else if(n==='why')doorGap(t,0,{feet:true,dark:0.55});
+ else if(n==='vote')crawlspace(t,{pry:1,beamA:-28+Math.sin(t*2)*6,dark:0.5});
+ x.restore();
+ if(n==='static')staticLines(t,0.8);
+ if(n==='hook')flashRed(dt,0.45);
+ if(kn&&(n==='knock'))flashRed((t%1)*0.2,0.35);
+ if(n==='why')flashRed(dt,0.5);
+ if(n==='hook')card('IT\'S MY HANDWRITING',600,'#fff','rgba(180,25,20,0.9)',74);
+ if(n==='hook2')card('BUT I NEVER WROTE IT',1450,'#fff','rgba(180,25,20,0.9)',70);
+ if(n==='knock'&&t>=8.55){card(t<9.25?'KNOCK':t<9.6?'KNOCK  KNOCK':'KNOCK  KNOCK  KNOCK',460,'#fff','rgba(0,0,0,0.75)',80);}
+ if(n==='never')card('THEY NEVER KNOCK',600,'#fff','rgba(180,25,20,0.9)',70);
+ if(n==='page'&&t<25.7)card('YOUR HANDWRITING',1380,'#fff','rgba(180,25,20,0.9)',64);
+ if(n==='why'){card('IT\'S JO\'S VOICE',600,'#fff','rgba(180,25,20,0.9)',72);}
+ if(n==='vote')vote3('TRUST JO','MY NOTE',dt);
+ const [tm,ap]=CLK(t);if(!['hook2','page','static','radio','never'].includes(n))hud3({day:2,days:6,time:tm,ampm:ap,place:PLACE(t),chips:CHIPS(t)});
+ const spk=(t>=15.6&&t<18.6)?'RADIO · JO':(t>=25.6&&t<29.4)?'YOUR NOTE':(t>=33.9&&t<35.5)?'BEHIND THE DOOR':null;
+ if(n!=='vote')captions3(t,1580,spk);
+ grainLite(t,0.05);cutFlash(dt);
+};
+window.DONE=true;
+</script></body></html>
