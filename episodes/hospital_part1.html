@@ -1,0 +1,82 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+@font-face{font-family:Anton;src:url(../fonts/anton.woff2)}@font-face{font-family:Montserrat;font-weight:300;src:url(../fonts/montserrat300.woff2)}
+@font-face{font-family:Caveat;font-weight:700;src:url(../fonts/caveat.woff2)}@font-face{font-family:Inter;font-weight:800;src:url(../fonts/inter800.woff2)}
+html,body{margin:0;background:#000}canvas{display:block}</style></head>
+<body><canvas id="c" width="1080" height="1920"></canvas>
+<script src="hospital_part1_words.js"></script><script src="../common.js"></script><script src="../flat.js"></script>
+<script>
+// HOSPITAL Part 1 (new story; next-story vote had no counted result -> tie rule = HOSPITAL). Hook: the patient in room 13 has your face.
+window.HI={gold:['thirteen','guard','note','elevator','stairs','camera','four','rounds','round','greywater','hospital','desk','inside'],red:['face','eyes','cap','name','chart','ding','empty','opening','tonight','dark','late','nobody','never','run','waiting']};
+const S=[[0,1.3,'hook'],[1.3,3.0,'hookBed'],[3.0,4.1,'eyes'],[4.1,5.27,'you'],[5.27,6.63,'chart0'],[6.63,8.05,'rewind'],[8.05,9.9,'ext'],[9.9,11.56,'sign'],
+ [11.56,13.73,'east'],[13.73,16.06,'desk'],[16.06,17.6,'rule1'],[17.6,19.71,'rounds'],[19.71,21.0,'rule2'],[21.0,23.12,'elevShut'],[23.12,24.7,'rule3'],[24.7,26.0,'hall13'],
+ [26.0,28.18,'lightOff'],[28.18,30.3,'deskCall'],[30.3,31.58,'hallCall'],[31.58,32.74,'ding'],[32.74,33.72,'ignored'],[33.72,35.89,'elevOpen'],[35.89,37.46,'empty'],
+ [37.46,38.69,'stairs'],[38.69,41.69,'cam'],[41.69,44.07,'camDoor'],[44.07,46.21,'walk'],[46.21,48.53,'chart'],[48.53,50.36,'admitted'],[50.36,53.54,'sitUp'],
+ [53.54,55.66,'face'],[55.66,57.21,'late'],[57.21,61.4,'vote']];
+const CLK=t=>t<6.63?['3:00','AM']:t<13.73?['11:00','PM']:t<28.18?['11:02','PM']:t<44.07?['2:59','AM']:['3:00','AM'];
+const PL={hook:'ROOM 13',hookBed:'ROOM 13',ext:'OUTSIDE',sign:'OUTSIDE',east:'EAST WING',desk:'GUARD DESK',rounds:'2ND FLOOR',elevShut:'ELEVATOR',hall13:'EAST WING',deskCall:'GUARD DESK',hallCall:'EAST WING',
+ elevOpen:'ELEVATOR',empty:'ELEVATOR',stairs:'STAIRS',cam:'CAM 4',camDoor:'CAM 4',walk:'EAST WING',sitUp:'ROOM 13',vote:'ROOM 13'};
+const CHIPS=t=>t<6.63?[['ROOM 13: OCCUPIED','#ff5a4a'],['ROUND: LATE','#ff8a3d']]:t<28.18?[['✓ ROUNDS: ON TIME','#7be08a'],['CALL 13: OFF','#7be08a']]:t<44.07?[['CALL 13: ON','#ff5a4a'],['ELEVATOR: OPEN','#ff8a3d']]:[['CALL 13: ON','#ff5a4a'],['ROOM 13: OCCUPIED','#ff5a4a']];
+const RULES=[[1,'Walk your rounds every hour.','Never skip a floor.'],[2,'If the elevator opens by itself,',"don't get in."],[3,'Nobody stays in room 13.','Call light on? Ignore it.',1]];
+const card=(s,y,col,bg,fs=70)=>{x.save();x.font=`400 ${fs}px Anton`;const w=x.measureText(s).width+64;rr(540-w/2,y-fs-10,w,fs+44,14,bg);txt(s,540,y,`400 ${fs}px Anton`,col);x.restore();};
+const pill=()=>{x.save();x.font='400 40px Anton';const s='EP 1: ROOM 13',w=x.measureText(s).width+40;rr(540-w/2,420,w,62,31,'rgba(200,30,25,0.95)');txt(s,540,466,'400 40px Anton','#fff');x.restore();};
+window.renderFrame=function(t){const sh=S.find(s=>t>=s[0]&&t<s[1])||S[S.length-1];const n=sh[2],dt=t-sh[0],p=clamp(dt/(sh[1]-sh[0]));
+ x.setTransform(1,0,0,1,0,0);x.fillStyle='#000';x.fillRect(0,0,W,H);x.save();
+ const ZZ={hook:[lerp(1.18,1.04,ease(p)),540,960],eyes:[lerp(1.3,1.6,ease(p)),540,1000],sign:[lerp(1.0,1.5,ease(p)),lerp(540,380,ease(p)),lerp(960,1250,ease(p))],east:[lerp(1.2,1.45,ease(p)),620,900],
+  empty:[lerp(1,1.25,ease(p)),540,1000],admitted:[lerp(1.0,1.2,ease(p)),540,1100],face:[lerp(1.0,1.12,ease(p)),540,1020]}[n]||[1+0.05*p,540,960];
+ x.translate(540,960);x.scale(ZZ[0],ZZ[0]);x.translate(-ZZ[1],-ZZ[2]);
+ if(n==='hook')twinClose(t,{grin:1,red:0.12});
+ else if(n==='hookBed')patientBed(t,{sit:1,turn:1,hollow:true,eyeGlow:true,grin:true,hero:[860,1900,1.5,{mood:'shock',light:-40,turn:0.6,look:-1}],dark:0.45,lightR:460});
+ else if(n==='eyes')twinClose(t,{grin:0.2});
+ else if(n==='you')heroClose(t,{mood:'shock',tremble:1,bg:'#1b2230'});
+ else if(n==='chart0')chartClose(t,1.5,{});
+ else if(n==='rewind'||n==='ext')hospitalExt(t,{hero:[lerp(960,780,clamp((t-6.63)/3.3)),0,0.62]});
+ else if(n==='sign')hospitalExt(t,{});
+ else if(n==='east')hospitalExt(t,{blink:true});
+ else if(n==='desk')guardDesk(t,{noteGlow:true,hero:[300,1760,1.3,{mood:'calm',look:0.8,arm:'point',light:null}]});
+ else if(n==='rule1')ruleNote(t,RULES,lerp(0.3,1,clamp(dt/0.5)),{title:'Rules for the night guard'});
+ else if(n==='rounds')hallway(t,{hero:true,walk:true,heroX:lerp(380,600,p),heroY:lerp(1900,1600,p),heroS:lerp(1.4,1.05,p),heroO:{mood:'calm',light:-20,turn:0.5},beam:-10,dark:0.35});
+ else if(n==='rule2')ruleNote(t,RULES,1+clamp(dt/0.5),{title:'Rules for the night guard'});
+ else if(n==='elevShut')elevatorOpen(t,0.02+0.015*Math.max(0,Math.sin(t*9)),{floor:'2'});
+ else if(n==='rule3')ruleNote(t,RULES,2+clamp(dt/0.5),{title:'Rules for the night guard'});
+ else if(n==='hall13')hallway(t,{dark:0.6,holes:[[860,720,220]]});
+ else if(n==='lightOff')callLight(t,{on:false});
+ else if(n==='deskCall')guardDesk(t,{callLight:true,note:true,hero:[300,1760,1.3,{mood:'worry',look:1,turn:0.4}]});
+ else if(n==='hallCall')hallway(t,{callOn:true,dark:0.62,holes:[[860,700,240]]});
+ else if(n==='ding')callLight(t,{on:true});
+ else if(n==='ignored')heroClose(t,{mood:'worry',bg:Math.sin(t*14)>0?'#3a1a1e':'#1b2230',look:0.6,turn:0.3});
+ else if(n==='elevOpen')elevatorOpen(t,ease(clamp((dt-0.5)/1.5)),{floor:'2'});
+ else if(n==='empty')elevatorOpen(t,1,{floor:'2'});
+ else if(n==='stairs')stairwell(t,p,{});
+ else if(n==='cam')cctvView(t,{open:0,stamp:'02:59:5'+Math.min(9,Math.floor(dt*3))});
+ else if(n==='camDoor')cctvView(t,{zoom:lerp(1,1.6,ease(p)),open:ease(p)*0.8,eyes:true,stamp:'03:00:0'+Math.min(9,Math.floor(dt*3))});
+ else if(n==='walk')hallway(t,{callOn:true,door13:lerp(0.2,0.4,p),hero:true,walk:true,heroX:lerp(420,700,p),heroY:lerp(1880,1640,p),heroS:lerp(1.3,1.0,p),heroO:{mood:'scared',turn:0.6,light:-10},beam:15,dark:0.62,holes:[[860,720,200]]});
+ else if(n==='chart')chartClose(t,clamp(dt/1.0)*1.6,{});
+ else if(n==='admitted')chartClose(t,1.6+clamp(dt/0.8)*1.6,{});
+ else if(n==='sitUp')patientBed(t,{sit:ease(clamp(dt/1.8)),turn:ease(clamp((dt-1.8)/1.0)),hollow:dt>2.6,hero:[880,1920,1.5,{mood:'scared',light:-40,turn:0.6,look:-1}],dark:0.5,lightR:420});
+ else if(n==='face')twinClose(t,{grin:ease(clamp((t-54.15)/0.9)),red:t>=54.15?0.2:0});
+ else if(n==='late')twinClose(t,{grin:1,talk:true});
+ else if(n==='vote')patientBed(t,{sit:1,turn:1,hollow:true,eyeGlow:true,grin:true,hero:[880,1920,1.5,{mood:'shock',light:-40,turn:0.6,look:-1}],dark:0.55,lightR:420});
+ x.restore();
+ if(n==='hook')flashRed(dt,0.45);
+ if(n==='chart0')flashRed(dt,0.35);
+ if(n==='ding')flashRed(dt,0.3);
+ if(n==='face'&&t>=54.15)flashRed(t-54.15,0.5);
+ if(t<3.0)pill();
+ if(n==='hook')card('IT HAS MY FACE',340,'#fff','rgba(180,25,20,0.9)',86);
+ if(n==='hookBed')card('ROOM 13',640,'#fff','rgba(0,0,0,0.7)',72);
+ if(n==='chart0')card('MY NAME IS ON THE CHART',1420,'#fff','rgba(180,25,20,0.9)',62);
+ if(n==='rewind'&&dt<0.9)card('3 HOURS EARLIER',900,'#fff','rgba(0,0,0,0.75)',80);
+ if(n==='east')card('CLOSED SINCE 2006',560,'#fff','rgba(0,0,0,0.7)',62);
+ if(n==='deskCall')card('2:59 AM',560,'#fff','rgba(180,25,20,0.9)',72);
+ if(n==='ding')card('DING.',980,'#fff','rgba(180,25,20,0.9)',90);
+ if(n==='empty')card('NOBODY PRESSED IT',560,'#fff','rgba(0,0,0,0.7)',62);
+ if(n==='face'&&t>=54.15)card("THAT'S ME",380,'#fff','rgba(180,25,20,0.9)',80);
+ if(n==='vote')vote3('GO IN','RUN',dt,1560);
+ const [tm,ap]=CLK(t);if(!['rule1','rule2','rule3','chart0','chart','admitted','cam','camDoor','ding','lightOff','hook','eyes','face','late','vote'].includes(n))
+  hud3({label:'NIGHT',day:1,days:6,time:tm,ampm:ap,place:'GREYWATER HOSPITAL · '+(PL[n]||'2ND FLOOR'),chips:CHIPS(t)});
+ const spk=(t>=16.06&&t<28.18)?"GUARD'S NOTE":(t>=55.6&&t<57.21)?'ROOM 13':(t>=38.69&&t<44.07)?'CAM 4':null;
+ if(n!=='vote')captions3(t,1580,spk);
+ grainLite(t,0.05);cutFlash(dt);
+};
+window.DONE=true;
+</script></body></html>

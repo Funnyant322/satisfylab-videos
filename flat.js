@@ -431,3 +431,156 @@ function backDoorOpen(t,o={}){x.fillStyle=F.wall2;x.fillRect(0,0,W,H);x.fillStyl
 const _radioTower0=radioTower;
 radioTower=function(t,o={}){_radioTower0(t,o);if(o.you){const tx=640,bot=1330;x.fillStyle=F.cap;x.beginPath();x.arc(tx-225,bot-140,26,Math.PI,0);x.fill();x.fillRect(tx-251,bot-142,52,10);x.beginPath();x.arc(tx-225,bot-168,8,0,7);x.fill();
  if(o.glow){x.fillStyle='#fff6d8';for(const k of[-8,8]){x.beginPath();x.arc(tx-225+k,bot-128,4,0,7);x.fill();}}}};
+
+// ---------- added 25 Nov (HOSPITAL Part 1, night guard at Greywater Hospital) ----------
+// hud3 label: pass {label:'NIGHT'} to show "NIGHT N / 6" instead of "DAY N / 6"
+(function(){const h0=hud3;hud3=function(o){if(!o.label)return h0(o);const keep=x.fillText.bind(x);let first=true;x.fillText=function(s,a,b,c){if(first&&typeof s==='string'&&s.startsWith('DAY ')){first=false;s=o.label+' '+o.day+' / '+(o.days||6);}return keep(s,a,b,c);};
+ try{h0(o);}finally{x.fillText=keep;}};})();
+const HP={wall:'#2b3442',wall2:'#232b37',tile:'#3a4250',tile2:'#323a47',floor:'#262d38',door:'#4a5a6a',door2:'#3c4a58',mint:'#7fb8a8',gown:'#9fb7c9',gown2:'#86a0b4',sheet:'#d9dde2',green:'#6dff9a'};
+// hospital building at night: dark block, lit lobby, red cross, dead east wing, rain
+function hospitalExt(t,o={}){x.fillStyle=lg(0,0,0,H,[[0,'#0b1020'],[0.6,'#18203a'],[1,'#121726']]);x.fillRect(0,0,W,H);
+ x.fillStyle='rgba(220,230,255,0.9)';x.beginPath();x.arc(860,300,62,0,7);x.fill();glow(860,300,200,'rgba(200,215,255,0.18)');
+ x.fillStyle='#1c2333';x.fillRect(60,620,960,900);x.fillStyle='#161c2a';x.fillRect(620,520,400,1000);// east wing taller
+ txt('EAST WING',820,570,'800 30px Inter','rgba(255,255,255,0.18)');
+ for(let r=0;r<7;r++)for(let c=0;c<4;c++){const lit=(r===5&&c===1)||(r===4&&c===0);x.fillStyle=lit?'#ffcf7a':'#0e1320';x.fillRect(110+c*120,680+r*110,70,60);}
+ for(let r=0;r<8;r++)for(let c=0;c<3;c++){const on=o.blink&&r===3&&c===2&&Math.sin(t*5)>0;x.fillStyle=on?'#ff4a3d':'#0b0f1a';x.fillRect(660+c*120,600+r*110,70,60);if(on)glow(695+c*120,630+r*110,90,'rgba(255,60,50,0.35)');}
+ x.fillStyle='#c8322a';x.fillRect(300,520,40,120);x.fillRect(260,560,120,40);glow(320,580,140,'rgba(255,60,50,0.25)');
+ rr(160,1380,360,140,8,'#2a3242');x.fillStyle='#ffd88a';x.fillRect(190,1400,300,120);warmLight(340,1460,380,0.5);
+ txt('GREYWATER HOSPITAL',340,1365,'400 44px Anton','#e9edf2');
+ x.fillStyle='#10141d';x.fillRect(0,1520,W,400);x.fillStyle='#1a202b';x.fillRect(0,1600,W,30);
+ if(o.hero)hero(o.hero[0],1900,o.hero[2]||0.9,{walk:t,mood:'worry',look:0.4});
+ rain(t,o.rain??120,0.25);vignette(0.6);}
+// guard desk: 4 CCTV monitors on the wall, desk lamp, taped note, optional hero sitting/standing
+function guardDesk(t,o={}){x.fillStyle=HP.wall2;x.fillRect(0,0,W,H);for(let i=0;i<9;i++){x.fillStyle=i%2?HP.tile:HP.tile2;x.fillRect(0,1100+i*30,W,30);}
+ x.fillStyle=HP.floor;x.fillRect(0,1370,W,550);
+ for(let k=0;k<4;k++){const mx=130+(k%2)*420,my=320+Math.floor(k/2)*330;rr(mx-14,my-14,388,288,14,'#151a22');const on=!(o.callLight&&k===3&&Math.sin(t*6)>0);
+  x.fillStyle=on?'#1f3a2c':'#2a0d0d';x.fillRect(mx,my,360,260);x.strokeStyle='rgba(109,255,154,0.35)';x.lineWidth=3;
+  x.beginPath();x.moveTo(mx+40,my+250);x.lineTo(mx+150,my+120);x.lineTo(mx+210,my+120);x.lineTo(mx+320,my+250);x.moveTo(mx+150,my+120);x.lineTo(mx+150,my+20);x.moveTo(mx+210,my+120);x.lineTo(mx+210,my+20);x.stroke();
+  txt('CAM '+(k+1),mx+60,my+40,'800 24px Inter',HP.green);if(k===3&&o.door13){x.fillStyle='rgba(109,255,154,0.6)';x.fillRect(mx+212,my+40,22*o.door13,70);}
+  for(let s=0;s<26;s++){x.fillStyle='rgba(0,0,0,0.18)';x.fillRect(mx,my+s*10,360,3);}glow(mx+180,my+130,260,'rgba(109,255,154,0.08)');}
+ if(o.callLight){const on=Math.sin(t*6)>0;rr(860,300,120,70,10,'#222');x.fillStyle=on?'#ff3b30':'#4a1512';x.beginPath();x.arc(920,335,26,0,7);x.fill();if(on)glow(920,335,160,'rgba(255,60,50,0.4)');txt('13',920,420,'400 44px Anton','#ff6a5a');}
+ x.fillStyle='#4a3a2c';x.fillRect(0,1240,W,70);x.fillStyle='#3a2c20';x.fillRect(0,1310,W,40);
+ // lamp
+ seg([180,1240],[220,1080],8,'#333');x.fillStyle='#444';x.beginPath();x.moveTo(170,1040);x.lineTo(290,1040);x.lineTo(250,1100);x.lineTo(190,1100);x.fill();warmLight(230,1150,520,0.55);
+ // taped note on the desk edge
+ if(o.note!==false){x.save();x.translate(760,1160);x.rotate(0.06);x.fillStyle='#f1e9d6';x.fillRect(-120,-80,240,170);x.fillStyle='rgba(255,255,220,0.55)';x.fillRect(-50,-96,100,30);
+  for(let i=0;i<4;i++)seg([-90,-30+i*36],[60+hash(i)*30,-30+i*36],4,'#555');x.restore();if(o.noteGlow)glow(760,1160,240,`rgba(255,220,140,${0.25+0.15*Math.sin(t*4)})`);}
+ x.fillStyle='#2a2f3a';rr(380,1180,260,60,8,'#2a2f3a');// keyboard
+ if(o.hero)hero(o.hero[0],o.hero[1]??1700,o.hero[2]??1.25,Object.assign({tt:t},o.heroO||{}));
+ vignette(0.55);if(o.dark)darkness(o.dark,[[540,800,700],[230,1150,420]]);}
+// corridor in one-point perspective: doors 11/12/13, flickering tubes, call light over 13
+// o: walk (hero walking toward camera/away), heroX, heroS, callOn, door13 0..1 (opens), dark, red
+function hallway(t,o={}){const vx=540,vy=880;x.fillStyle=HP.wall;x.fillRect(0,0,W,H);
+ x.fillStyle=HP.floor;x.beginPath();x.moveTo(0,H);x.lineTo(W,H);x.lineTo(vx+120,vy+120);x.lineTo(vx-120,vy+120);x.fill();
+ x.fillStyle='#1c222c';x.beginPath();x.moveTo(0,0);x.lineTo(W,0);x.lineTo(vx+120,vy-140);x.lineTo(vx-120,vy-140);x.fill();
+ x.fillStyle=HP.wall2;x.beginPath();x.moveTo(0,0);x.lineTo(vx-120,vy-140);x.lineTo(vx-120,vy+120);x.lineTo(0,H);x.fill();
+ x.fillStyle='#29313d';x.beginPath();x.moveTo(W,0);x.lineTo(vx+120,vy-140);x.lineTo(vx+120,vy+120);x.lineTo(W,H);x.fill();
+ x.fillStyle='#0a0d13';x.fillRect(vx-120,vy-140,240,260);
+ // floor tiles lines
+ x.strokeStyle='rgba(0,0,0,0.25)';x.lineWidth=3;for(let i=1;i<9;i++){const k=Math.pow(i/9,2);const y=vy+120+(H-vy-120)*k;const hw=120+(540-120)*k;x.beginPath();x.moveTo(vx-hw,y);x.lineTo(vx+hw,y);x.stroke();}
+ // mint stripe
+ x.strokeStyle=HP.mint;x.globalAlpha=0.35;x.lineWidth=10;x.beginPath();x.moveTo(0,1350);x.lineTo(vx-120,vy+40);x.moveTo(W,1350);x.lineTo(vx+120,vy+40);x.stroke();x.globalAlpha=1;
+ // doors on the right wall: 11 near, 12, 13 far; on left: 10
+ const doors=[[0.25,'11'],[0.55,'12'],[0.78,'13']];
+ for(const [k,num] of doors){const xa=W-(W-vx-120)*k,xb=W-(W-vx-120)*(k+0.13);const ta=0-(0-(vy-140))*k,ba=H-(H-(vy+120))*k,tb=0-(0-(vy-140))*(k+0.13),bb=H-(H-(vy+120))*(k+0.13);
+  const dt0=ta+(ba-ta)*0.3,dt1=tb+(bb-tb)*0.3;const open=num==='13'?(o.door13||0):0;
+  x.fillStyle=open>0?'#05070b':HP.door;x.beginPath();x.moveTo(xa,dt0);x.lineTo(xb,dt1);x.lineTo(xb,bb);x.lineTo(xa,ba);x.fill();
+  if(open>0){const xo=xa+(xb-xa)*(1-open);x.fillStyle=HP.door2;x.beginPath();x.moveTo(xa,dt0);x.lineTo(xo,dt0-(dt0-dt1)*0.2);x.lineTo(xo,ba-(ba-bb)*0.2);x.lineTo(xa,ba);x.fill();}
+  x.fillStyle='#e9edf2';const fs=Math.max(18,60*(1-k));txt(num,(xa+xb)/2,dt0-(dt0-dt1)/2+fs*1.6,`400 ${fs}px Anton`,num==='13'&&o.callOn?'#ff8a80':'#cfd6de');
+  if(num==='13'){const on=o.callOn&&Math.sin(t*7)>0;x.fillStyle=on?'#ff3b30':'#4a1512';x.beginPath();x.arc((xa+xb)/2,dt0-(dt0-dt1)/2-30,14,0,7);x.fill();if(on)glow((xa+xb)/2,dt0-(dt0-dt1)/2-30,120,'rgba(255,60,50,0.45)');
+   if(o.chart){x.fillStyle='#e8e1cf';x.fillRect((xa+xb)/2-14,(dt0+ba)/2-20,28,38);}}}
+ // left door 10 + wheelchair
+ x.fillStyle=HP.door2;x.beginPath();x.moveTo(110,330);x.lineTo(300,560);x.lineTo(300,1270);x.lineTo(110,1520);x.fill();
+ x.strokeStyle='#59616d';x.lineWidth=7;x.beginPath();x.arc(330,1430,60,0,7);x.stroke();seg([300,1330],[400,1330],8,'#59616d');seg([300,1250],[300,1380],8,'#59616d');
+ // ceiling tubes (flicker)
+ for(let i=0;i<4;i++){const k=0.12+i*0.2;const y=0-(0-(vy-140))*k+20;const hw=(540-(540-120)*k)*0.25;const fl=(i===2&&hash(Math.floor(t*12))>0.6)||o.dark>0.8?0:1;
+  x.fillStyle=fl?'#eaf6ff':'#3a4048';x.fillRect(vx-hw,y,hw*2,10+12*(1-k));if(fl)glow(vx,y+60,320*(1-k)+80,'rgba(200,235,255,0.14)');}
+ if(o.hero){const hs=o.heroS??1.2;hero(o.heroX??540,o.heroY??1700,hs,Object.assign({walk:o.walk?t:null,tt:t},o.heroO||{}));}
+ if(o.beam)beam(o.heroX??540,(o.heroY??1700)-300*(o.heroS??1.2),o.beam,1500,0.22,0.4);
+ vignette(0.6);darkness(o.dark??0.45,[[vx,vy,520],[o.heroX??540,(o.heroY??1700)-350,420],...(o.holes||[])]);
+ if(o.red){x.save();x.globalCompositeOperation='multiply';x.fillStyle=`rgba(255,90,80,${o.red})`;x.fillRect(0,0,W,H);x.restore();}}
+// close-up: red call light above door 13 blinking, DING rings
+function callLight(t,o={}){x.fillStyle=HP.wall;x.fillRect(0,0,W,H);x.fillStyle=HP.door;x.fillRect(240,980,600,940);x.fillStyle=HP.door2;x.fillRect(260,1000,560,920);
+ rr(380,1110,320,170,10,'#cfd6de');txt('13',540,1240,'400 130px Anton','#2a2f3a');
+ const on=o.on!==false&&Math.sin(t*7)>-0.2;rr(380,560,320,200,40,'#1a1d22');x.fillStyle=on?'#ff3b30':'#4a1512';x.beginPath();x.arc(540,660,80,0,7);x.fill();
+ if(on){glow(540,660,520,'rgba(255,60,50,0.45)');x.strokeStyle='rgba(255,120,110,0.6)';x.lineWidth=8;for(let k=0;k<3;k++){const r=120+((t*200+k*90)%270);x.globalAlpha=1-r/390;x.beginPath();x.arc(540,660,r,0,7);x.stroke();}x.globalAlpha=1;}
+ txt('CALL',540,830,'800 34px Inter','#9aa3ad');vignette(0.65);}
+// elevator: steel doors slide open (p 0..1) on an empty lit car; floor arrows
+function elevatorOpen(t,p,o={}){x.fillStyle=HP.wall2;x.fillRect(0,0,W,H);x.fillStyle=HP.floor;x.fillRect(0,1560,W,360);
+ rr(170,330,740,1250,10,'#4c535c');x.fillStyle='#fff1c8';x.fillRect(210,400,660,1180);// lit car
+ x.fillStyle='#d9c79a';x.fillRect(210,1450,660,130);x.strokeStyle='#bfae84';x.lineWidth=4;seg([240,900],[840,900],6,'#c9b78c');
+ if(o.who){x.globalAlpha=o.who;x.fillStyle='rgba(20,20,30,0.85)';x.beginPath();x.ellipse(540,1000,70,80,0,0,7);x.fill();x.fillRect(470,1080,140,370);x.globalAlpha=1;}
+ const g=330*ease(clamp(p));x.fillStyle='#8e979f';x.fillRect(210-g,400,330,1180);x.fillRect(540+g,400,330,1180);x.fillStyle='#7a838b';x.fillRect(536-g,400,6,1180);x.fillRect(538+g,400,6,1180);
+ x.fillStyle=HP.wall2;x.fillRect(0,400,210,1180);x.fillRect(870,400,210,1180);
+ rr(925,700,130,90,10,'#151820');txt(o.floor||'B',990,768,'400 60px Anton','#ff5a4a');
+ x.fillStyle='#ffcf4a';x.beginPath();x.moveTo(960,900);x.lineTo(990,860);x.lineTo(1020,900);x.fill();
+ warmLight(540,1000,700*ease(clamp(p))+10,0.4);x.fillStyle='rgba(255,240,200,0.12)';x.beginPath();x.moveTo(540-g,1580);x.lineTo(540+g,1580);x.lineTo(540+g*1.6,1920);x.lineTo(540-g*1.6,1920);x.fill();
+ vignette(0.6);}
+// stairwell: zig-zag flights, green EXIT sign, hero climbing (p 0..1)
+function stairwell(t,p,o={}){x.fillStyle='#232a33';x.fillRect(0,0,W,H);
+ for(let f=0;f<3;f++){const by=1700-f*560;x.fillStyle=f%2?'#3a424e':'#333b46';x.beginPath();const dir=f%2?-1:1,x0=dir>0?120:960;for(let s=0;s<9;s++){x.rect(x0+dir*s*90-(dir<0?90:0),by-s*56,90,56+s*56);}x.fill();
+  seg([x0,by-60],[x0+dir*810,by-560],8,'#8a939e');}
+ rr(760,170,220,90,10,'#0f2a18');txt('EXIT',870,240,'400 64px Anton','#6dff9a');glow(870,215,260,'rgba(109,255,154,0.25)');
+ const s=Math.floor(clamp(p)*8);const hx=120+clamp(p)*720,hy=1700-clamp(p)*450;hero(hx,hy,0.95,{walk:t,mood:'scared',look:0.6,tt:t,light:20});
+ beam(hx+80,hy-300,30,900,0.25,0.35);vignette(0.6);darkness(o.dark??0.55,[[hx,hy-300,420],[870,215,240]]);}
+// CCTV monitor full screen (green night vision), corridor, door 13 slowly opening (open 0..1), timestamp
+function cctvView(t,o={}){x.fillStyle='#07120b';x.fillRect(0,0,W,H);x.save();x.translate(0,120);if(o.zoom){const zc=o.zc||[760,700];x.translate(zc[0],zc[1]);x.scale(o.zoom,o.zoom);x.translate(-zc[0],-zc[1]);}
+ const vx=540,vy=760;x.strokeStyle='rgba(109,255,154,0.55)';x.lineWidth=4;
+ x.beginPath();x.moveTo(0,1500);x.lineTo(vx-90,vy+90);x.lineTo(vx+90,vy+90);x.lineTo(W,1500);x.moveTo(0,80);x.lineTo(vx-90,vy-110);x.lineTo(vx+90,vy-110);x.lineTo(W,80);x.moveTo(vx-90,vy-110);x.lineTo(vx-90,vy+90);x.moveTo(vx+90,vy-110);x.lineTo(vx+90,vy+90);x.stroke();
+ x.fillStyle='rgba(109,255,154,0.12)';x.beginPath();x.moveTo(0,1500);x.lineTo(vx-90,vy+90);x.lineTo(vx+90,vy+90);x.lineTo(W,1500);x.fill();
+ for(const [k,num] of [[0.3,'11'],[0.58,'12'],[0.8,'13']]){const xa=W-(W-vx-90)*k,xb=W-(W-vx-90)*(k+0.12),ta=80+(vy-110-80)*k+(1500-80)*0*k,ba=1500-(1500-vy-90)*k,tb=80+(vy-110-80)*(k+0.12),bb=1500-(1500-vy-90)*(k+0.12);
+  const d0=ta+(ba-ta)*0.3,d1=tb+(bb-tb)*0.3;x.strokeStyle='rgba(109,255,154,0.7)';x.beginPath();x.moveTo(xa,d0);x.lineTo(xb,d1);x.lineTo(xb,bb);x.lineTo(xa,ba);x.closePath();x.stroke();
+  if(num==='13'){const op=o.open||0;x.fillStyle='rgba(0,0,0,0.95)';x.beginPath();x.moveTo(xa,d0);x.lineTo(xa+(xb-xa)*op,d0-(d0-d1)*op);x.lineTo(xa+(xb-xa)*op,ba-(ba-bb)*op);x.lineTo(xa,ba);x.fill();
+   if(op>0.3&&o.eyes){x.fillStyle='rgba(220,255,230,0.95)';x.beginPath();x.arc(xa+12,d0+90,4,0,7);x.arc(xa+26,d0+90,4,0,7);x.fill();}}
+  txt(num,(xa+xb)/2,d0-10,'800 26px Inter','rgba(109,255,154,0.8)');}
+ x.restore();for(let s=0;s<190;s++){x.fillStyle='rgba(0,0,0,0.22)';x.fillRect(0,s*10+(t*40)%10,W,3);}grainLite(t,0.18);
+ const ss=Math.floor(t)%60;txt('CAM 4 · EAST WING',60,460,'800 40px Inter',HP.green,'left');txt(o.stamp||('02:59:'+String(ss).padStart(2,'0')),60,520,'800 40px Inter',HP.green,'left');
+ if(Math.sin(t*4)>0){x.fillStyle='#ff3b30';x.beginPath();x.arc(930,445,14,0,7);x.fill();txt('REC',980,458,'800 34px Inter','#ff3b30');}
+ x.strokeStyle='rgba(109,255,154,0.5)';x.lineWidth=4;for(const [a,b,c,d] of [[40,380,40,440],[40,380,100,380],[1040,380,1040,440],[1040,380,980,380],[40,1700,40,1640],[40,1700,100,1700],[1040,1700,1040,1640],[1040,1700,980,1700]]){x.beginPath();x.moveTo(a,b);x.lineTo(c,d);x.stroke();}
+ vignette(0.7);}
+// the patient chart clipped to door 13: shown 0..4 lines; line 1 'NAME: YOU' red circle, polaroid of your face
+function chartClose(t,shown,o={}){x.fillStyle=HP.door;x.fillRect(0,0,W,H);x.fillStyle=HP.door2;for(let i=0;i<6;i++)x.fillRect(0,i*330,W,6);
+ x.save();x.translate(540,980);x.rotate(-0.03+Math.sin(t*1.3)*0.006);rr(-380,-620,760,1160,20,'#6b4a32');rr(-340,-560,680,1060,6,'#efeadf');rr(-120,-660,240,110,16,'#a9b0b8');
+ txt('GREYWATER HOSPITAL',0,-470,'800 34px Inter','#3a4250');txt('ROOM 13 · EAST WING',0,-420,'800 30px Inter','#7a828c');seg([-300,-390],[300,-390],3,'#bbb');
+ const L=[['PATIENT:','YOU',1],['ADMITTED:','TONIGHT',1],['TIME:','3:00 AM',1],['NOTES:','late for rounds',0]];
+ L.forEach((l,i)=>{if(i>=shown)return;x.globalAlpha=clamp(shown-i);txt(l[0],-300,-300+i*130,'800 34px Inter','#555','left');txt(l[1],-60,-296+i*130,'700 78px Caveat',l[2]?'#b2302a':'#2a2a2a','left');x.globalAlpha=1;});
+ if(shown>0.6){x.strokeStyle='#d33';x.lineWidth=6;x.beginPath();x.ellipse(10,-320,110,62,-0.05,0,7*clamp((shown-0.6)*2));x.stroke();}
+ // polaroid of your face
+ x.save();x.translate(200,300);x.rotate(0.08);x.fillStyle='#fff';x.fillRect(-110,-120,220,250);x.fillStyle='#2b3442';x.fillRect(-95,-105,190,180);
+ x.fillStyle=F.skin;x.beginPath();x.arc(0,-5,58,0,7);x.fill();x.fillStyle=F.cap;x.beginPath();x.arc(0,-12,60,Math.PI*1.05,Math.PI*1.95);x.closePath();x.fill();x.fillRect(-62,-30,124,16);
+ x.fillStyle=F.ink;x.beginPath();x.arc(-18,0,6,0,7);x.arc(18,0,6,0,7);x.fill();seg([-10,26],[10,26],4,F.ink);x.restore();
+ x.restore();if(o.beam!==false)beam(-60,1900,40,1900,0.3,0.4);vignette(0.55);if(o.dark)darkness(o.dark,[[540,900,640]]);}
+// room 13: moonlit window, hospital bed, IV stand, heart monitor; the patient (your double: red cap, pale gown) sits up (sit 0..1) and turns (turn 0..1)
+function patientBed(t,o={}){const sit=clamp(o.sit??1),turn=clamp(o.turn??0);x.fillStyle='#1b2230';x.fillRect(0,0,W,H);x.fillStyle='#161b26';x.fillRect(0,1400,W,520);
+ rr(620,300,360,460,8,'#2b3446');x.fillStyle='#8fa6c8';x.fillRect(640,320,320,420);seg([800,320],[800,740],8,'#2b3446');seg([640,530],[960,530],8,'#2b3446');
+ x.fillStyle='rgba(170,195,235,0.13)';x.beginPath();x.moveTo(640,740);x.lineTo(960,740);x.lineTo(700,1600);x.lineTo(160,1600);x.fill();
+ // monitor
+ rr(110,560,260,190,12,'#11161e');x.strokeStyle=o.flat?'#ff4a3d':HP.green;x.lineWidth=4;x.beginPath();for(let i=0;i<220;i++){const ph=(i+t*120)%110;const yy=650-(o.flat?0:(ph>40&&ph<48?(ph<44?-60:40):0));i?x.lineTo(130+i,yy):x.moveTo(130,yy);}x.stroke();
+ txt(o.flat?'--':'61',320,600,'800 30px Inter',o.flat?'#ff4a3d':HP.green);seg([240,750],[240,1450],8,'#444b55');
+ // IV stand
+ seg([900,820],[900,1480],6,'#8a939e');seg([860,820],[940,820],6,'#8a939e');rr(880,840,40,90,10,'rgba(200,230,255,0.5)');
+ // bed
+ rr(200,1180,700,120,16,HP.sheet);rr(200,1300,700,40,6,'#8a939e');seg([240,1340],[240,1460],10,'#6f7782');seg([860,1340],[860,1460],10,'#6f7782');rr(170,1000,40,360,10,'#8a939e');
+ // patient: legs under sheet; torso rises with sit
+ x.fillStyle=HP.sheet;x.beginPath();x.ellipse(640,1180,240,50,0,Math.PI,0);x.fill();
+ x.save();x.translate(lerp(600,330,sit),1190);x.rotate(-(1-sit)*1.35);
+ x.fillStyle=HP.gown;x.beginPath();x.roundRect(-55,-260,110,260,[30,30,8,8]);x.fill();x.fillStyle=HP.gown2;for(let i=0;i<4;i++){x.beginPath();x.arc(-25+i*16,-200+i*40,5,0,7);x.fill();}
+ const hy=-330;x.fillStyle=F.skin;x.beginPath();x.arc(0,hy,66,0,7);x.fill();x.lineWidth=5;x.strokeStyle=F.ink;x.stroke();
+ x.fillStyle=F.cap;x.beginPath();x.arc(0,hy-8,68,Math.PI*1.05,Math.PI*1.95);x.closePath();x.fill();x.fillRect(-70,hy-28,140,20);x.beginPath();x.arc(0,hy-78,10,0,7);x.fill();
+ const lk=-turn*22;// turn toward camera
+ if(o.hollow){x.fillStyle='#07080b';x.beginPath();x.ellipse(-20+lk,hy+4,13,17,0,0,7);x.ellipse(20+lk,hy+4,13,17,0,0,7);x.fill();if(o.eyeGlow)for(const k of[-20,20]){glow(k+lk,hy+4,26,'rgba(255,240,200,0.5)');x.fillStyle='#fff7da';x.beginPath();x.arc(k+lk,hy+4,4,0,7);x.fill();}}
+ else{x.fillStyle=F.ink;x.beginPath();x.arc(-20+lk,hy+6,7,0,7);x.arc(20+lk,hy+6,7,0,7);x.fill();}
+ if(o.grin){x.strokeStyle=F.ink;x.lineWidth=5;x.beginPath();x.moveTo(-30+lk,hy+28);x.quadraticCurveTo(lk,hy+56,30+lk,hy+28);x.stroke();}else seg([-10+lk,hy+32],[10+lk,hy+32],5,F.ink);
+ x.restore();
+ if(o.hero)hero(o.hero[0],o.hero[1]??1760,o.hero[2]??1.3,Object.assign({tt:t},o.heroO||{}));
+ if(o.beamTo)beam(1080,1900,-38,1700,0.22,0.45);
+ vignette(0.6);darkness(o.dark??0.5,[[330,900,o.lightR??380],[800,530,300],...(o.holes||[])]);}
+// close-up of your double's face in room 13: cap, hollow eyes, slow too-wide grin (grin 0..1), mouth moves with talk
+function twinClose(t,o={}){x.fillStyle='#141a26';x.fillRect(0,0,W,H);x.fillStyle=HP.gown;x.beginPath();x.roundRect(200,1500,680,500,[160,160,0,0]);x.fill();
+ const cx=540,cy=980+Math.sin(t*1.3)*6,R=330;x.fillStyle=F.skin;x.beginPath();x.arc(cx,cy,R,0,7);x.fill();x.lineWidth=12;x.strokeStyle=F.ink;x.stroke();
+ x.fillStyle=F.cap;x.beginPath();x.arc(cx,cy-40,R+10,Math.PI*1.05,Math.PI*1.95);x.closePath();x.fill();x.fillRect(cx-R-10,cy-140,2*R+20,90);x.beginPath();x.arc(cx,cy-R-60,44,0,7);x.fill();
+ x.fillStyle='#06070a';x.beginPath();x.ellipse(cx-110,cy+20,58,76,0,0,7);x.ellipse(cx+110,cy+20,58,76,0,0,7);x.fill();
+ for(const k of[-110,110]){glow(cx+k,cy+20,90,'rgba(255,240,200,0.4)');x.fillStyle='#fff7da';x.beginPath();x.arc(cx+k,cy+20,14,0,7);x.fill();}
+ const g=clamp(o.grin??1),m=o.talk?Math.abs(Math.sin(t*13))*30:0;x.fillStyle='#06070a';x.beginPath();x.moveTo(cx-60-120*g,cy+150);x.quadraticCurveTo(cx,cy+190+90*g+m,cx+60+120*g,cy+150);x.quadraticCurveTo(cx,cy+190+30*g,cx-60-120*g,cy+150);x.fill();
+ x.fillStyle='#e9e4d6';for(let i=-4;i<=4;i++){x.fillRect(cx+i*34*g-8,cy+168+20*g-Math.abs(i)*4*g,16,18*g);}
+ vignette(0.75);darkness(0.35,[[cx,cy,560]]);if(o.red){x.save();x.globalCompositeOperation='multiply';x.fillStyle=`rgba(255,80,70,${o.red})`;x.fillRect(0,0,W,H);x.restore();}}
