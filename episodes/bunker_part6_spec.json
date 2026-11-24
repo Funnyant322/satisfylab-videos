@@ -1,0 +1,5 @@
+{"duration":47.8,"music":"m5_wind_metal","music_vol":0.55,"drone":true,"drone_vol":0.4,"quiet":[[14.9,15.45],[34.8,35.3]],
+"events":[["stinger_low",0.0,0.9],["scrape",0.3,0.6],["hit_low",1.2,0.7],["scrape",1.7,0.5],["whoosh",3.2,0.6],["hit_low",3.25,0.8],
+["scrape",5.3,0.5],["scrape",7.5,0.5],["scrape",9.0,0.45],["static",12.3,0.3],["heartbeat",13.6,0.6],["stinger_rev",15.5,0.8],
+["riser",15.9,0.45],["whoosh",16.6,0.5],["footstep",18.7,0.5],["paper",21.0,0.5],["paper",22.8,0.4],["thud",26.4,0.7],
+["static",28.8,0.5],["radio",30.2,0.3],["lightsout",35.35,0.9],["hit_low",35.35,0.8],["heartbeat",36.4,0.5],["riser",37.6,0.45],["whoosh",38.1,0.5]]}

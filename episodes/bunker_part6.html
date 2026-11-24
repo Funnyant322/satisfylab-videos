@@ -1,0 +1,64 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+@font-face{font-family:Anton;src:url(../fonts/anton.woff2)}@font-face{font-family:Montserrat;font-weight:300;src:url(../fonts/montserrat300.woff2)}
+@font-face{font-family:Caveat;font-weight:700;src:url(../fonts/caveat.woff2)}@font-face{font-family:Inter;font-weight:800;src:url(../fonts/inter800.woff2)}
+html,body{margin:0;background:#000}canvas{display:block}</style></head>
+<body><canvas id="c" width="1080" height="1920"></canvas>
+<script src="bunker_part6_words.js"></script><script src="../common.js"></script><script src="../flat.js"></script>
+<script>
+// ZOMBIE BUNKER Part 6 = GRAND FINALE (HOLD THE HATCH won 1-0). Hook: something is turning your hatch from outside. Twist: the copier took your voice and walks to Jo.
+window.HI={gold:['jo.','m.',"m.'s",'notebook.','dawn,','guarding','radio','tower!"','hospital','motel','decide.'],red:['outside.','hatch...','finale.','your','voice.','in."','open.','never','word.','end...','hunting']};
+const S=[[0,1.2,'hook'],[1.2,2.3,'hook2'],[2.3,3.2,'hook3'],[3.2,5.1,'finale'],[5.1,7.3,'held'],[7.3,10.4,'allnight'],[10.4,13.5,'voices'],[13.5,16.6,'yourvoice'],
+ [16.6,18.6,'dawn'],[18.6,21.0,'out'],[21.0,22.8,'notebook'],[22.8,26.4,'page'],[26.4,28.8,'door'],[28.8,30.2,'radio'],[30.2,33.4,'tower'],[33.4,36.3,'yours'],[36.3,38.1,'never'],[38.1,40.2,'end'],[40.2,47.8,'vote']];
+const fm=m=>{m=((Math.round(m)%1440)+1440)%1440;let h=Math.floor(m/60),mm=m%60;const ap=h>=12?'PM':'AM';h=h%12||12;return [h+':'+String(mm).padStart(2,'0'),ap];};
+const CLK=t=>t<7.3?fm(1086):t<16.6?fm(1086+ease(clamp((t-7.3)/9.3))*(1440+358-1086)):t<21?fm(358):t<30.2?fm(360):fm(361);
+const DAY=t=>t<16.6?2:3;
+const PLACE=t=>{const n=(S.find(s=>t>=s[0]&&t<s[1])||S[S.length-1])[2];return 'ZOMBIE BUNKER · '+({hook:'LADDER SHAFT',hook2:'HATCH · OUTSIDE',held:'LADDER SHAFT',allnight:'LADDER SHAFT',voices:'LADDER SHAFT',dawn:'LADDER SHAFT',out:'HATCH · OUTSIDE',door:'BACK DOOR',tower:'RADIO TOWER',yours:'RADIO TOWER',end:'HATCH · OUTSIDE',vote:'RADIO TOWER'}[n]||'MAIN ROOM');};
+const CHIPS=t=>t<16.6?[['HATCH: TURNING','#ff5a4a'],['NOISE: QUIET','#7be08a']]:t<26.4?[['✓ SUNRISE','#ffcf4a'],['SLOW ONES: GONE','#7be08a']]:[['BACK DOOR: OPEN','#ff5a4a'],['✓ SUNRISE','#ffcf4a']];
+const PAGE=[["They weren't",0,74],['hunting you.',0,74],['They were',1,74],['guarding you.',1,74],['— M.',0,64]];
+const pageShown=t=>t<23.9?0.5:t<24.4?1:t<25.2?2:t<25.6?3:t<26.0?4:5;
+const card=(s,y,col,bg,fs=70)=>{x.save();x.font=`400 ${fs}px Anton`;const w=x.measureText(s).width+64;rr(540-w/2,y-fs-10,w,fs+44,14,bg);txt(s,540,y,`400 ${fs}px Anton`,col);x.restore();};
+const pill=()=>{x.save();x.font='400 40px Anton';const s='EP 6: GRAND FINALE',w=x.measureText(s).width+40;rr(540-w/2,420,w,62,31,'rgba(200,30,25,0.95)');txt(s,540,466,'400 40px Anton','#fff');x.restore();};
+window.renderFrame=function(t){const sh=S.find(s=>t>=s[0]&&t<s[1])||S[S.length-1];const n=sh[2],dt=t-sh[0],p=clamp(dt/(sh[1]-sh[0]));
+ x.setTransform(1,0,0,1,0,0);x.fillStyle='#000';x.fillRect(0,0,W,H);x.save();
+ const z=n==='hook'?lerp(1.2,1.05,ease(p)):n==='yours'?lerp(1,1.9,ease(p)):n==='out'?lerp(1.1,1,ease(p)):1+0.04*p;const zc=n==='yours'?[415,1170]:[540,960];
+ x.translate(540,960);x.scale(z,z);x.translate(-zc[0],-zc[1]);
+ const ang=t*1.6+Math.sin(t*7)*0.08;
+ if(n==='hook')wheelTurn(t,ang*1.4,{arrows:true,red:0.15,dark:0.4});
+ else if(n==='hook2')hatchOutside(t,{sit:false,eyeGlow:true,shake:0.8,dark:0.45});
+ else if(n==='hook3')heroClose(t,{mood:'shock',tremble:1,bg:'#1a1e2a',look:0});
+ else if(n==='finale')wheelTurn(t,ang,{arrows:true,red:0.25,dark:0.5});
+ else if(n==='held')holdWheel(t,Math.sin(t*3)*0.25,{tug:Math.sin(t*6)});
+ else if(n==='allnight')holdWheel(t,Math.sin(t*2.4)*0.35,{tug:Math.sin(t*5)});
+ else if(n==='voices')holdWheel(t,Math.sin(t*3)*0.3,{tug:Math.sin(t*7),voices:[['"Open up!" — Jo',12.45],['"It\'s me." — M.',13.0]]});
+ else if(n==='yourvoice')heroClose(t,{mood:'shock',tremble:1,arm:'mouth',bg:'#2a1a1e',look:0});
+ else if(n==='dawn')hatchUnder(t,{dawn:true,dark:0.3});
+ else if(n==='out'){hatchOutside(t,{dawn:true,n:0});hero(540,1520,1.15,{mood:'worry',look:Math.sin(t*1.5)});}
+ else if(n==='notebook')notebookHold(t,{});
+ else if(n==='page')tornPage(t,PAGE,pageShown(t),{});
+ else if(n==='door')backDoorOpen(t,{open:lerp(0.6,0.9,ease(p))});
+ else if(n==='radio')radioClose(t,{talk:true});
+ else if(n==='tower')radioTower(t,{dawn:true,talk:true});
+ else if(n==='yours')radioTower(t,{dawn:true,talk:true,you:true,glow:dt>1.6});
+ else if(n==='never')heroClose(t,{mood:'shock',tremble:1,bg:'#1a1e2a',look:0,arm:'mouth'});
+ else if(n==='end')hatchOutside(t,{dawn:true,n:0});
+ else if(n==='vote')radioTower(t,{dawn:true,you:true,glow:true});
+ x.restore();
+ if(n==='hook')flashRed(dt,0.45);
+ if(n==='yourvoice'&&t>=15.5)flashRed(t-15.5,0.5);
+ if(n==='yours'&&dt>1.6)flashRed(dt-1.6,0.4);
+ if(t<3.2)pill();
+ if(n==='hook')card('IT OPENS FROM OUTSIDE',620,'#fff','rgba(180,25,20,0.9)',72);
+ if(n==='finale'){card('GRAND',900,'#fff','rgba(180,25,20,0.92)',150);card('FINALE',1110,'#fff','rgba(180,25,20,0.92)',150);}
+ if(n==='allnight')card('ALL NIGHT',560,'#fff','rgba(0,0,0,0.65)',72);
+ if(n==='yourvoice'&&t>=15.4)card('IT HAS YOUR VOICE',560,'#fff','rgba(180,25,20,0.9)',72);
+ if(n==='door')card('THE BACK DOOR IS OPEN',560,'#fff','rgba(180,25,20,0.9)',66);
+ if(n==='yours'&&dt>1.6)card('THAT\'S NOT YOU',560,'#fff','rgba(180,25,20,0.9)',76);
+ if(n==='end'){card('THE END...',880,'#fff','rgba(0,0,0,0.7)',110);card('OF ZOMBIE BUNKER',1050,'#fff','rgba(180,25,20,0.9)',70);}
+ if(n==='vote'){card('NEXT STORY?',620,'#fff','rgba(0,0,0,0.7)',64);vote3('HOSPITAL','MOTEL',dt);}
+ const [tm,ap]=CLK(t);if(!['finale','page','radio','end','notebook'].includes(n))hud3({day:DAY(t),days:6,time:tm,ampm:ap,place:PLACE(t),chips:CHIPS(t)});
+ const spk=(t>=15.5&&t<16.6)?'YOUR VOICE':(t>=12.4&&t<13.5)?'THROUGH THE STEEL':(t>=23.9&&t<26.4)?"M.'S NOTEBOOK":(t>=30.9&&t<33.4)?'RADIO · JO':(t>=35.3&&t<36.3)?'RADIO · "YOU"':null;
+ if(n!=='vote'&&n!=='end')captions3(t,1580,spk);
+ grainLite(t,0.05);cutFlash(dt);
+};
+window.DONE=true;
+</script></body></html>

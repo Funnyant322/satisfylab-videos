@@ -409,3 +409,25 @@ function wheelTurn(t,ang,o={}){x.fillStyle='#1e1f23';x.fillRect(0,0,W,H);
  for(const s of[-1,1])seg([540+s*360,1920],[540+s*200,1300],24,'#5d6268');for(let i=0;i<4;i++){const k=i/4,y=1920-k*560,w=lerp(360,220,k);seg([540-w,y],[540+w,y],16,'#555a60');}
  if(o.red){x.save();x.globalCompositeOperation='multiply';x.fillStyle=`rgba(255,100,90,${o.red})`;x.fillRect(0,0,W,H);x.restore();}
  darkness(o.dark??0.45,[[540,820,700]]);}
+
+// ---------- added 24 Nov (Bunker Part 6 GRAND FINALE, HOLD THE HATCH) ----------
+// holdWheel: wheelTurn from below with YOUR two arms (olive sleeves, white hands) gripping the spokes; tug = -1..1 strain, ang = wheel angle
+function holdWheel(t,ang,o={}){wheelTurn(t,ang,{dark:o.dark??0.4,red:o.red,arrows:o.arrows});
+ const tug=(o.tug??Math.sin(t*5))*14;
+ const hs=[0,2].map(k=>{const a=ang+k*Math.PI/2+0.6;return [a,540+Math.cos(a)*230,820+Math.sin(a)*230];}).sort((u,v)=>u[1]-v[1]);
+ for(const [i,[a,hx,hy]] of hs.entries()){const k=i;const sx=k?860:220,sy=1920;
+  x.save();x.lineCap='round';x.strokeStyle=F.coat;x.lineWidth=110;x.beginPath();x.moveTo(sx,sy);x.quadraticCurveTo((sx+hx)/2+(k?60:-60),(sy+hy)/2+tug,hx,hy+40);x.stroke();
+  x.strokeStyle=F.coat2;x.lineWidth=18;x.beginPath();x.moveTo(sx+(k?-30:30),sy-40);x.quadraticCurveTo((sx+hx)/2+(k?40:-40),(sy+hy)/2+tug,hx,hy+50);x.stroke();x.restore();
+  x.fillStyle=F.skin;x.beginPath();x.ellipse(hx,hy,52,44,a,0,7);x.fill();x.strokeStyle=F.ink;x.lineWidth=3;for(let f=-1;f<=1;f++){x.beginPath();x.moveTo(hx+f*16,hy-30);x.lineTo(hx+f*16,hy+14);x.stroke();}}
+ if(o.voices){const L=o.voices;x.save();L.forEach((v,i)=>{const a=clamp((t-v[1])/0.3);if(a<=0)return;x.globalAlpha=a*(0.7+0.3*Math.sin(t*6+i));txt(v[0],540+(i%2?150:-150),1260+i*110,'700 70px Caveat',v[2]||'#e9e2d0');});x.restore();}
+ vignette(0.5);}
+// backDoorOpen: the bunker back door hanging open onto a black tunnel, chains and the open padlock lying on the floor; o:{open 0..1, dark}
+function backDoorOpen(t,o={}){x.fillStyle=F.wall2;x.fillRect(0,0,W,H);x.fillStyle=F.floor;x.fillRect(0,1560,W,360);
+ door(540,1640,2.2,t,{open:o.open??0.85,chains:0});
+ x.save();x.strokeStyle='#a7adb3';x.lineWidth=12;x.setLineDash([22,10]);for(let k=0;k<2;k++){x.beginPath();x.moveTo(260+k*80,1700+k*20);x.bezierCurveTo(420,1660+k*30,560,1760,820-k*60,1690+k*40);x.stroke();}x.setLineDash([]);
+ x.fillStyle='#c9a448';x.save();x.translate(640,1750);x.rotate(0.5);x.beginPath();x.roundRect(-34,-30,68,62,10);x.fill();x.strokeStyle='#c9a448';x.lineWidth=10;x.beginPath();x.arc(30,-34,24,Math.PI*1.2,Math.PI*0.1);x.stroke();x.restore();x.restore();
+ beam(980,1700,-28,1500,0.3,0.4);darkness(o.dark??0.5,[[560,1100,700]]);}
+// radioTower option o.you: the silhouette in the hut window wears YOUR red knit cap (the copier took your place)
+const _radioTower0=radioTower;
+radioTower=function(t,o={}){_radioTower0(t,o);if(o.you){const tx=640,bot=1330;x.fillStyle=F.cap;x.beginPath();x.arc(tx-225,bot-140,26,Math.PI,0);x.fill();x.fillRect(tx-251,bot-142,52,10);x.beginPath();x.arc(tx-225,bot-168,8,0,7);x.fill();
+ if(o.glow){x.fillStyle='#fff6d8';for(const k of[-8,8]){x.beginPath();x.arc(tx-225+k,bot-128,4,0,7);x.fill();}}}};
