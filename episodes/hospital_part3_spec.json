@@ -1,0 +1,8 @@
+{"duration":65.1,"music":"m4_tension_pulse","music_vol":0.55,"drone":true,"drone_vol":0.4,"quiet":[[44.9,46.6],[57.9,59.6]],
+"events":[["hit_low",0.0,0.85],["static",0.05,0.3],["whoosh",1.9,0.4],["footstep",3.7,0.5],["footstep",4.0,0.5],["footstep",4.3,0.5],["footstep",4.6,0.5],["footstep",4.9,0.5],["footstep",5.2,0.5],
+["footstep",7.3,0.45],["footstep",7.65,0.45],["footstep",8.0,0.45],["footstep",8.35,0.45],["footstep",8.7,0.45],["stinger_low",9.36,0.8],["heartbeat",9.7,0.5],
+["paper",10.8,0.4],["paper",12.6,0.4],["paper",14.1,0.4],["hit_low",15.7,0.5],["footstep",17.6,0.4],["footstep",18.0,0.4],["footstep",18.4,0.4],["freezer",19.3,0.45],
+["paper",20.5,0.45],["paper",22.3,0.4],["paper",22.8,0.4],["paper",23.3,0.4],["paper",23.8,0.4],["paper",24.3,0.4],["hit_low",29.6,0.55],["paper",30.6,0.3],
+["riser",36.3,0.4],["hit_low",38.05,0.75],["static",38.1,0.3],["heartbeat",40.0,0.5],["heartbeat",41.0,0.5],
+["thud",42.3,0.35],["thud",42.9,0.42],["thud",43.5,0.5],["thud",44.1,0.56],["thud",44.7,0.62],["heartbeat",45.0,0.6],
+["pa",46.62,0.7],["whoosh",47.6,0.4],["riser",47.9,0.45],["hit_low",49.4,0.8],["static",52.4,0.3],["paper",53.7,0.4],["lightsout",59.6,0.6],["riser",60.0,0.35],["whoosh",60.3,0.4]]}
