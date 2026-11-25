@@ -1,0 +1,5 @@
+{"duration":40.2,"music":"m6_string_pad","music_vol":0.55,"drone":true,"drone_vol":0.4,"quiet":[[7.9,8.55],[31.9,32.25]],
+"events":[["hit_low",0.0,0.85],["heartbeat",0.4,0.4],["whoosh",1.8,0.5],["footstep",4.0,0.5],["footstep",4.6,0.5],["flicker",5.7,0.5],
+["footstep",6.6,0.6],["footstep",7.2,0.6],["stinger_low",8.6,0.8],["static",9.9,0.35],["footstep",11.0,0.35],["footstep",11.7,0.35],["riser",13.0,0.4],["hit_low",13.8,0.7],
+["heartbeat",16.0,0.6],["heartbeat",17.3,0.6],["paper",19.9,0.5],["paper",22.0,0.5],["hit_low",25.28,0.6],["heartbeat",27.7,0.8],["static",29.3,0.5],
+["stinger_rev",32.25,0.9],["static",32.3,0.4],["riser",33.4,0.4],["whoosh",34.2,0.5]]}

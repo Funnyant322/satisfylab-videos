@@ -584,3 +584,40 @@ function twinClose(t,o={}){x.fillStyle='#141a26';x.fillRect(0,0,W,H);x.fillStyle
  const g=clamp(o.grin??1),m=o.talk?Math.abs(Math.sin(t*13))*30:0;x.fillStyle='#06070a';x.beginPath();x.moveTo(cx-60-120*g,cy+150);x.quadraticCurveTo(cx,cy+190+90*g+m,cx+60+120*g,cy+150);x.quadraticCurveTo(cx,cy+190+30*g,cx-60-120*g,cy+150);x.fill();
  x.fillStyle='#e9e4d6';for(let i=-4;i<=4;i++){x.fillRect(cx+i*34*g-8,cy+168+20*g-Math.abs(i)*4*g,16,18*g);}
  vignette(0.75);darkness(0.35,[[cx,cy,560]]);if(o.red){x.save();x.globalCompositeOperation='multiply';x.fillStyle=`rgba(255,80,70,${o.red})`;x.fillRect(0,0,W,H);x.restore();}}
+
+// ---------- added 25 Nov (Hospital Part 2, GO INSIDE) ----------
+// room13Empty: inside room 13: the empty bed (warm dent in sheet + pillow, steam wisps), heart monitor on a stand (green trace, bpm), rainy window, door frame on the left with the hallway light. o:{bpm, steam, flash, dark, hero:[x,y,s], heroO}
+function room13Empty(t,o={}){x.fillStyle='#1f2633';x.fillRect(0,0,W,H);x.fillStyle=HP.mint;x.globalAlpha=0.35;x.fillRect(0,900,W,26);x.globalAlpha=1;x.fillStyle='#181e29';x.fillRect(0,1380,W,540);
+ // window with rain
+ x.fillStyle='#0d1424';x.fillRect(620,300,360,420);x.strokeStyle='#3a4556';x.lineWidth=14;x.strokeRect(620,300,360,420);seg([800,300],[800,720],10,'#3a4556');
+ x.save();x.beginPath();x.rect(627,307,346,406);x.clip();x.strokeStyle='rgba(160,190,230,0.35)';x.lineWidth=3;for(let i=0;i<30;i++){const rx=627+((i*53+t*90)%380),ry=307+((i*97+t*700)%460);x.beginPath();x.moveTo(rx,ry);x.lineTo(rx-6,ry+28);x.stroke();}x.restore();
+ // door frame + hallway light
+ x.fillStyle='#2f3a4a';x.fillRect(0,560,170,880);x.fillStyle='rgba(255,240,200,0.18)';x.beginPath();x.moveTo(170,560);x.lineTo(520,1440);x.lineTo(170,1440);x.fill();
+ // monitor on stand
+ const mx=860,my=860;seg([mx,my+150],[mx,1420],12,'#5d6470');seg([mx-80,1420],[mx+80,1420],12,'#5d6470');rr(mx-150,my-110,300,230,22,'#2c333e');rr(mx-130,my-92,260,170,10,'#05110a');
+ const bpm=o.bpm??70,ph=(t*bpm/60)%1;x.save();x.beginPath();x.rect(mx-130,my-92,260,170);x.clip();x.strokeStyle=HP.green;x.lineWidth=5;x.beginPath();
+ for(let i=0;i<=52;i++){const u=i/52,px=mx-130+u*260,q=(u+1-ph)%1;let y=my;if(q>0.5&&q<0.53)y-=60;else if(q>=0.53&&q<0.56)y+=30;else if(q>=0.47&&q<0.5)y+=8;i?x.lineTo(px,y):x.moveTo(px,y);}x.stroke();x.restore();
+ txt(String(Math.round(bpm)),mx+95,my+60,'800 40px Inter',HP.green);if(ph<0.12){glow(mx-150,my-120,26,'rgba(255,60,50,0.9)');}
+ // bed
+ const bx=330,by=1180;x.fillStyle='#6b7380';x.fillRect(bx-260,by+60,520,24);seg([bx-250,by+80],[bx-250,by+250],10,'#6b7380');seg([bx+250,by+80],[bx+250,by+250],10,'#6b7380');
+ x.fillStyle='#8b94a0';x.fillRect(bx-280,by-160,22,260);x.fillStyle=HP.sheet;x.beginPath();x.roundRect(bx-250,by-40,500,110,30);x.fill();
+ x.fillStyle='#eef0f2';x.beginPath();x.ellipse(bx-180,by-50,70,34,0,0,7);x.fill();x.fillStyle='rgba(120,130,150,0.35)';x.beginPath();x.ellipse(bx-180,by-48,40,16,0,0,7);x.fill();
+ x.fillStyle='rgba(120,130,150,0.3)';x.beginPath();x.ellipse(bx+30,by-6,190,30,0,0,7);x.fill(); // body dent
+ if(o.steam!==false){x.strokeStyle='rgba(230,235,245,0.35)';x.lineWidth=6;for(let k=0;k<4;k++){const sx=bx-120+k*80,ph2=(t*0.6+k*0.3)%1;x.globalAlpha=1-ph2;x.beginPath();x.moveTo(sx,by-60-ph2*160);x.bezierCurveTo(sx+30,by-100-ph2*160,sx-30,by-140-ph2*160,sx,by-190-ph2*160);x.stroke();}x.globalAlpha=1;}
+ if(o.hero)hero(o.hero[0],o.hero[1],o.hero[2],o.heroO||{});
+ beam(170,1000,8,1200,0.2,0.35);darkness(o.dark??0.45,[[330,1150,520],[mx,my,320],[800,510,300]]);
+ if(o.flash){x.save();x.globalCompositeOperation='multiply';x.fillStyle=`rgba(255,110,100,${o.flash})`;x.fillRect(0,0,W,H);x.restore();}vignette(0.5);}
+// heartClose: big heart-monitor screen: green ECG trace, bpm number climbing, red beat light; o:{bpm, alarm}
+function heartClose(t,o={}){x.fillStyle='#14181f';x.fillRect(0,0,W,H);rr(80,500,920,760,50,'#2c333e');rr(130,560,820,620,24,'#03100a');
+ const bpm=o.bpm??80,ph=(t*bpm/60)%1;x.save();x.beginPath();x.rect(130,560,820,620);x.clip();x.strokeStyle='rgba(109,255,154,0.12)';x.lineWidth=2;for(let i=0;i<12;i++){x.beginPath();x.moveTo(130+i*70,560);x.lineTo(130+i*70,1180);x.stroke();}
+ x.strokeStyle=HP.green;x.lineWidth=9;x.shadowColor=HP.green;x.shadowBlur=18;x.beginPath();for(let i=0;i<=120;i++){const u=i/120,px=130+u*820,q=(u*2+1-ph)%1;let y=860;if(q>0.5&&q<0.53)y-=230;else if(q>=0.53&&q<0.57)y+=110;else if(q>=0.46&&q<0.5)y+=25;i?x.lineTo(px,y):x.moveTo(px,y);}x.stroke();x.restore();
+ txt('♥ '+Math.round(bpm),800,1150,'800 90px Inter',o.alarm?'#ff5a4a':HP.green);txt('BPM',800,1210,'800 34px Inter','#7f8a96');
+ if(ph<0.15||o.alarm&&Math.sin(t*12)>0){glow(200,620,60,'rgba(255,60,50,0.9)');x.fillStyle='#ff3b30';x.beginPath();x.arc(200,620,18,0,7);x.fill();}vignette(0.45);}
+// walkieClose: your walkie-talkie close-up on the belt/hand, green screen "CH 2", red TX light when it talks, sound rings; o:{talk}
+function walkieClose(t,o={}){x.fillStyle='#1d2430';x.fillRect(0,0,W,H);x.fillStyle=F.coat;x.fillRect(0,1300,W,620);
+ x.save();x.translate(540,1000);x.rotate(-0.08);seg([-110,-460],[-110,-260],26,'#2a2f36');rr(-200,-300,400,760,60,'#2a2f36');rr(-160,-250,320,200,20,'#9fd8a0');txt('CH 2',0,-130,'800 80px Inter','#1d3a22');
+ for(let r=0;r<6;r++)for(let c=0;c<5;c++){x.fillStyle='#1a1e24';x.beginPath();x.arc(-120+c*60,40+r*50,10,0,7);x.fill();}rr(-210,-60,30,160,10,'#3a4048');
+ const tx=o.talk&&Math.sin(t*10)>-0.2;x.fillStyle=tx?'#ff3b30':'#5a1a18';x.beginPath();x.arc(120,-200,14,0,7);x.fill();if(tx)glow(120,-200,70,'rgba(255,60,50,0.6)');x.restore();
+ x.fillStyle=F.skin;x.beginPath();x.ellipse(330,1250,120,90,-0.4,0,7);x.fill();
+ if(o.talk){x.strokeStyle='rgba(159,216,160,0.6)';x.lineWidth=6;for(let k=0;k<3;k++){const r=((t*160+k*90)%270)+40;x.globalAlpha=1-r/320;x.beginPath();x.arc(540,800,r+200,Math.PI*1.15,Math.PI*1.85);x.stroke();}x.globalAlpha=1;}
+ darkness(0.35,[[540,900,620]]);vignette(0.5);}
