@@ -708,3 +708,62 @@ function elevDouble(t,o={}){x.fillStyle='#1c222b';x.fillRect(0,0,W,H);rr(90,240,
  const g=clamp(o.grin??1);x.beginPath();x.moveTo(hx-(14+26*g)*s,hy+30*s);x.quadraticCurveTo(hx,hy+(44+22*g)*s,hx+(14+26*g)*s,hy+30*s);x.quadraticCurveTo(hx,hy+(38+6*g)*s,hx-(14+26*g)*s,hy+30*s);x.fill();
  x.fillStyle='#e9e4d6';for(let i=-3;i<=3;i++)x.fillRect(hx+i*7*s*g-3,hy+(36+4*g)*s-Math.abs(i)*1.2*s,6,6*s*g);
  warmLight(540,700,700,0.35);vignette(0.6);darkness(o.dark??0.25,[[540,900,700]]);if(o.red){x.save();x.globalCompositeOperation='multiply';x.fillStyle=`rgba(255,90,80,${o.red})`;x.fillRect(0,0,W,H);x.restore();}}
+
+// ---------- added 26 Nov (Hospital Part 4, ELEVATOR; high-quality pass) ----------
+// elevInside: view from INSIDE the lit car looking out at the doors; close 0..1 slides them shut; o.who = the double outside in the morgue light, waving with your hand; o.panel lit floor (e.g. '3'); o.shake
+function elevInside(t,o={}){const sh=o.shake?Math.sin(t*38)*5*o.shake:0;x.save();x.translate(sh,0);
+ x.fillStyle='#e9dcb8';x.fillRect(0,0,W,H);x.fillStyle='#d6c79f';for(let i=0;i<6;i++)x.fillRect(0,240+i*260,W,6); // car walls
+ x.fillStyle='#c9b88d';x.fillRect(0,1640,W,280);for(let i=0;i<10;i++){x.fillStyle=i%2?'#bfae84':'#c9b88d';x.fillRect(i*108,1640,108,280);}
+ rr(190,260,700,1380,8,'#5b636c'); // door frame
+ // outside: morgue, cold blue, receding light rows
+ x.save();x.beginPath();x.rect(220,290,640,1350);x.clip();x.fillStyle='#1f2a36';x.fillRect(220,290,640,1350);
+ for(let i=0;i<6;i++){const y=420+i*40,w=640-i*90;x.fillStyle=`rgba(190,220,255,${0.14-i*0.02})`;x.fillRect(540-w/2,y,w,10);}
+ x.fillStyle='#2a3644';x.fillRect(220,1250,640,390);for(let r=0;r<3;r++)for(let c=0;c<4;c++){rr(240+c*155,700+r*170,140,150,8,'#3a4756');x.fillStyle='#8a97a6';x.fillRect(285+c*155,770+r*170,50,10);}
+ if(o.who){const wx=540,wy=1600;hero(wx,wy,1.25,{arm:'wave',tt:t,mood:'calm',look:0});const hx=wx,hy=wy-525;
+  x.fillStyle='#f3efe6';x.beginPath();x.arc(hx,hy+15,68,0,Math.PI);x.fill();x.fillRect(hx-70,hy-12,140,30);
+  x.fillStyle='#0b0d12';for(const k of[-26,26]){x.beginPath();x.ellipse(hx+k,hy+4,15,20,0,0,7);x.fill();}x.fillStyle='rgba(255,255,255,0.85)';for(const k of[-26,26]){x.beginPath();x.arc(hx+k,hy+6,4,0,7);x.fill();}
+  x.strokeStyle='#0b0d12';x.lineWidth=7;x.beginPath();x.moveTo(hx-46,hy+38);x.quadraticCurveTo(hx,hy+(o.grin??78),hx+46,hy+38);x.stroke();for(let k=-3;k<=3;k++){seg([hx+k*12,hy+40+Math.abs(k)*-2],[hx+k*12,hy+50+(3-Math.abs(k))*5],3,'#0b0d12');}}
+ x.restore();
+ const c=clamp(o.close??0),g=320*(1-ease(c));x.fillStyle='#9aa3ab';x.fillRect(220,290,320-g,1350);x.fillRect(540+g,290,320-g,1350);
+ x.fillStyle='#868f97';x.fillRect(534-g,290,6,1350);x.fillRect(540+g,290,6,1350);x.fillStyle='rgba(255,255,255,0.18)';x.fillRect(240,290,24,1350);
+ // button panel on the right wall
+ rr(930,700,120,520,14,'#b8a982');const fl=['3','2','1','B'];fl.forEach((f,i)=>{const by=780+i*115,lit=o.panel===f&&(o.blink?Math.sin(t*14)>0:true);x.fillStyle=lit?'#ffcf4a':'#7d7358';x.beginPath();x.arc(990,by,38,0,7);x.fill();if(lit)glow(990,by,80,'rgba(255,207,74,0.7)');txt(f,990,by+16,'400 44px Anton',lit?'#3a2a00':'#e9dcb8');});
+ x.restore();warmLight(540,300,700,0.18);vignette(0.45);}
+// buttonPanel: close-up of the car's floor buttons; o.lit = which floor glows, o.press 0..1 shows a button pressing in by itself, o.count = how many times "3" has lit (pulses)
+function buttonPanel(t,o={}){x.fillStyle='#c9b88d';x.fillRect(0,0,W,H);rr(240,260,600,1400,40,'#b8a982');rr(270,290,540,1340,30,'#a99a74');
+ rr(380,330,320,150,16,'#151820');const fl=o.display||'B';txt(fl,540,440,'400 110px Anton','#ff5a4a');
+ ['3','2','1','B'].forEach((f,i)=>{const by=640+i*240,lit=o.lit===f&&(o.pulse?Math.sin(t*o.pulse)>-0.2:true),pr=lit?(o.press??0):0;
+  x.fillStyle='#8f835f';x.beginPath();x.arc(540,by,96,0,7);x.fill();x.fillStyle=lit?'#ffcf4a':'#e6dcc0';x.beginPath();x.arc(540,by,80-pr*8,0,7);x.fill();if(lit)glow(540,by,190,'rgba(255,207,74,0.6)');
+  txt(f,540,by+36,'400 110px Anton',lit?'#3a2a00':'#6b6249');});
+ x.fillStyle='rgba(0,0,0,0.2)';x.fillRect(240,1620,600,40);vignette(0.4);}
+// badgeClose: old cracked guard ID badge on the elevator floor; o.name = name line text, o.reveal 0..1 slides the light across, o.year
+function badgeClose(t,o={}){x.fillStyle='#bba982';x.fillRect(0,0,W,H);for(let i=0;i<10;i++){x.fillStyle=i%2?'#b09f78':'#bba982';x.fillRect(i*108,0,108,H);}
+ x.save();x.translate(540,960);x.rotate(-0.12+Math.sin(t*0.6)*0.01);x.shadowColor='rgba(0,0,0,0.4)';x.shadowBlur=30;rr(-330,-470,660,940,40,'#f1ece0');x.shadowBlur=0;
+ rr(-330,-470,660,170,[40,40,0,0],'#2f6f8f');txt('GREYWATER HOSPITAL',0,-395,'400 52px Anton','#fff');txt('SECURITY · NIGHT GUARD',0,-335,'800 30px Inter','#d6ecf6');
+ rr(-250,-250,240,300,16,'#cfd6dc');x.save();x.beginPath();x.roundRect(-250,-250,240,300,16);x.clip();x.fillStyle='#9fb3c4';x.fillRect(-250,-250,240,300);
+ x.fillStyle=F.skin;x.beginPath();x.arc(-130,-110,70,0,7);x.fill();x.fillStyle=F.cap;x.beginPath();x.arc(-130,-130,72,Math.PI,0);x.fill();x.fillRect(-202,-136,144,20);x.fillStyle=F.coat;x.fillRect(-220,-20,180,80);
+ x.fillStyle=F.ink;for(const k of[-24,24]){x.beginPath();x.arc(-130+k,-100,8,0,7);x.fill();}x.restore();
+ txt('ISSUED',120,-200,'800 30px Inter','#6b7280');txt(o.year||'2006',120,-140,'400 70px Anton','#2a2f36');txt('SHIFT',120,-60,'800 30px Inter','#6b7280');txt('11PM–7AM',120,-10,'400 52px Anton','#2a2f36');
+ txt('NAME',-210,140,'800 32px Inter','#6b7280');rr(-250,165,500,110,12,'#fff');txt(o.name||'YOU',0,248,'400 96px Anton','#b2302a');
+ for(let k=0;k<5;k++)x.fillStyle='#2a2f36',x.fillRect(-250+k*100,330,(k%2?40:70),70);
+ x.strokeStyle='rgba(60,50,40,0.55)';x.lineWidth=4;x.beginPath();x.moveTo(-330,-60);x.lineTo(-120,40);x.lineTo(-40,-10);x.lineTo(200,120);x.lineTo(330,90);x.stroke();
+ x.restore();const rv=clamp(o.reveal??1);x.save();x.globalCompositeOperation='multiply';x.fillStyle='rgba(20,20,30,0.75)';x.fillRect(0,0,W,H);x.restore();
+ x.save();x.globalCompositeOperation='lighter';const g=x.createRadialGradient(200+rv*700,900,0,200+rv*700,900,520);g.addColorStop(0,'rgba(255,240,200,0.75)');g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.fillRect(0,0,W,H);x.restore();vignette(0.5);}
+// mirrorEmpty: the car's mirror: the lit car reflected, your flashlight beam in it, but NO person; o.you 0..1 fades your reflection out; o.smile shows the double grinning faintly behind
+function mirrorEmpty(t,o={}){x.fillStyle='#d6c79f';x.fillRect(0,0,W,H);rr(120,220,840,1360,20,'#8b7f60');
+ x.save();x.beginPath();x.roundRect(150,250,780,1300,12);x.clip();x.fillStyle='#e7dbb6';x.fillRect(150,250,780,1300);x.fillStyle='#cdbd93';for(let i=0;i<5;i++)x.fillRect(150,420+i*240,780,5);
+ x.fillStyle='#bfae84';x.fillRect(150,1360,780,190);rr(170,700,80,320,10,'#b8a982');
+ const yv=clamp(o.you??0);if(yv>0){x.globalAlpha=yv;hero(560,1520,1.3,{mood:'worry',look:0,light:true,tt:t});x.globalAlpha=1;}
+ if(o.smile){x.globalAlpha=o.smile;x.fillStyle='rgba(40,30,30,0.6)';x.beginPath();x.ellipse(700,780,90,100,0,0,7);x.fill();x.strokeStyle='#fff';x.lineWidth=7;x.beginPath();x.arc(700,800,50,0.15*Math.PI,0.85*Math.PI);x.stroke();x.globalAlpha=1;}
+ x.fillStyle='rgba(255,255,255,0.12)';x.beginPath();x.moveTo(150,250);x.lineTo(420,250);x.lineTo(150,800);x.fill();
+ x.save();x.globalCompositeOperation='lighter';x.fillStyle='rgba(255,240,190,0.18)';x.beginPath();x.moveTo(560,1700);x.lineTo(420,600);x.lineTo(700,600);x.fill();x.restore();x.restore();
+ x.fillStyle=F.skin;x.beginPath();x.ellipse(560,1800,90,70,0,0,7);x.fill();rr(500,1640,120,160,20,'#2a2f36');glow(560,1640,60,'rgba(255,240,190,0.8)');
+ vignette(0.5);}
+// floor3Open: car doors sliding open (p 0..1) onto the closed east wing floor 3: dusty hallway, lights ON, caution tape "CLOSED 2006", a cart, the round book on a stand
+function floor3Open(t,p,o={}){hallway(t,{dark:o.dark??0.25});x.fillStyle='rgba(255,250,230,0.06)';x.fillRect(0,0,W,H);
+ x.save();x.strokeStyle='#ffcf4a';x.lineWidth=34;x.beginPath();x.moveTo(330,980);x.lineTo(760,880);x.stroke();x.beginPath();x.moveTo(330,880);x.lineTo(760,980);x.stroke();
+ x.fillStyle='#1a1a1a';x.font='400 30px Anton';x.save();x.translate(545,930);x.rotate(-0.23);x.fillText('CLOSED · 2006 · CLOSED',-150,10);x.restore();x.restore();
+ rr(470,1180,140,200,10,'#d9dde2');txt('ROUNDS',540,1240,'400 28px Anton','#2a2f36');for(let k=0;k<4;k++)x.fillStyle='#8a8f96',x.fillRect(490,1260+k*28,100,6);
+ x.fillStyle='rgba(220,220,220,0.4)';for(let i=0;i<40;i++){const dx=(hash(i)*1080+t*20*(hash(i+5)-0.5))%1080,dy=(hash(i+9)*1600+t*30)%1600;x.fillRect(dx,dy,3,3);}
+ const g=470*ease(clamp(p));x.fillStyle='#9aa3ab';x.fillRect(70-g,0,470,H);x.fillRect(540+g,0,470,H);x.fillStyle='#d6c79f';x.fillRect(0,0,70,H);x.fillRect(1010,0,70,H);
+ vignette(0.5);}
