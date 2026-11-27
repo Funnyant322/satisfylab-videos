@@ -1,0 +1,7 @@
+{"duration":39.0,"music":"m0_lullaby","music_vol":0.6,"drone":true,"drone_vol":0.42,"quiet":[[24.7,25.15],[27.3,27.85]],
+"events":[["hit_low",0.0,0.85],["stinger",0.05,0.45],["static",0.1,0.25],["stinger_low",3.6,0.8],["whoosh",4.5,0.35],["whoosh",5.6,0.4],
+["scrape",7.0,0.5],["hit_low",8.45,0.55],["footstep",8.8,0.45],["footstep",9.15,0.45],["footstep",9.5,0.45],["footstep",9.85,0.45],["footstep",10.2,0.4],["footstep",10.55,0.35],["footstep",10.9,0.3],
+["flicker",11.45,0.45],["riser",11.6,0.35],["hit_low",13.6,0.5],["scrape",15.6,0.3],["paper",17.8,0.5],["paper",18.6,0.4],["stinger_low",20.1,0.65],
+["whoosh",21.35,0.4],["heartbeat",22.0,0.5],["heartbeat",23.0,0.55],["heartbeat",24.0,0.6],["hit_low",25.1,0.85],
+["riser",26.0,0.35],["stinger",27.8,0.9],["cry",28.2,0.28],["static",30.4,0.5],["radio",30.9,0.45],["footstep",32.6,0.4],["footstep",33.1,0.4],
+["flicker",34.05,0.4],["heartbeat",34.6,0.55],["heartbeat",35.6,0.6],["whoosh",36.7,0.5]]}
